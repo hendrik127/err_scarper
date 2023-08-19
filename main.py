@@ -14,6 +14,7 @@ def scrape(all):
         session.add(article)
     session.commit()
     session.close()
+    return result
 
 
 app = FastAPI()
@@ -35,3 +36,10 @@ async def root():
     with Session(engine) as session:
         result = session.exec(select(Article)).all()
         return result
+
+
+@app.get("/sync")
+async def sync():
+    # print("HELLO")
+    new_articles = scrape(False)
+    return new_articles
