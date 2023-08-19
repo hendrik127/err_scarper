@@ -28,7 +28,6 @@ def on_startup():
             scrape(True)
         else:
             scrape(False)
-            print("FUUCK")
 
 
 @app.get("/")

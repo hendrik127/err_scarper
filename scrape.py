@@ -6,7 +6,6 @@ from database import Article, engine
 
 
 def scrape_data(all):
-    print("AAALLLLL", all)
     result = []
     URL = "https://www.err.ee/"
 
@@ -29,7 +28,6 @@ def scrape_data(all):
                 if res.first():
                     continue
             article_link = "https:" + link
-            print(article_link)
             article = requests.get(article_link)
             article_soup = BeautifulSoup(
                 article.content, "html.parser", fromEncoding='utf-8')
