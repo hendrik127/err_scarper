@@ -38,8 +38,18 @@ async def root():
         return result
 
 
+
 @app.get("/sync")
 async def sync():
     # print("HELLO")
     new_articles = scrape(False)
     return new_articles
+
+  
+@app.get("/sort")
+async def sort():
+    with Session(engine) as session:
+        stmt = select(Article).order_by(Article.timestamp.desc())
+        articles_by_date = session.exec(stmt).all()
+        return articles_by_date
+
