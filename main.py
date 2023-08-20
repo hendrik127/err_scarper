@@ -6,7 +6,8 @@ from sqlmodel import Session, select
 from database import Article, engine
 
 
-def scrape(all):
+def scrape(all: bool) -> List[Article]:
+    # Whether to seed empty database or to only get new articles.
     data = scrape_data(all)
     result = parse_obj_as(List[Article], data)
     session = Session(engine)
@@ -22,6 +23,9 @@ app = FastAPI()
 
 @app.on_event("startup")
 def on_startup():
+    # Check whether database is empty.
+    # If empty seed with all articles that can be found.
+    # If not empty add all articles that have not been added.
     with Session(engine) as session:
         articles = select(Article)
         result = session.exec(articles).first()
@@ -32,24 +36,24 @@ def on_startup():
 
 
 @app.get("/")
-async def root():
+async def root() -> List[Article]:
     with Session(engine) as session:
         result = session.exec(select(Article)).all()
         return result
 
 
-
 @app.get("/sync")
 async def sync():
-    # print("HELLO")
-    new_articles = scrape(False)
-    return new_articles
+    # Fetches new articles that are not in the database yet.
+    # Adds them to the database.
+    scrape(False)
+    return {"sync": "complete"}
 
-  
+
 @app.get("/sort")
-async def sort():
+async def sort() -> List[Article]:
+    # Gets all the articles from the database sorted by date.
     with Session(engine) as session:
         stmt = select(Article).order_by(Article.timestamp.desc())
         articles_by_date = session.exec(stmt).all()
         return articles_by_date
-

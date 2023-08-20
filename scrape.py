@@ -5,7 +5,7 @@ from sqlmodel import Session, select
 from database import Article, engine
 
 
-def scrape_data(all):
+def scrape_data(all: bool):
     result = []
     URL = "https://www.err.ee/"
 
