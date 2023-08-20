@@ -1,0 +1,23 @@
+version: '3'
+services:
+  scraper-api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    command: uvicorn main:app  --reload --host 0.0.0.0 --port 80
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: "postgresql://postgres:password@database:5432/scraperdb"  # Update with your PostgreSQL database URL
+      SQLALCHEMY_DATABASE_URI: "postgresql://postgres:password@database:5432/scraperdb"  # Add SQLAlchemy database URI
+    depends_on:
+      - database  # Make sure scraper-api service waits for the database service to be up
+
+  database:
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: scraperdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
