@@ -11,5 +11,5 @@ COPY ./database.py /code/
 #COPY ./database.db /code/
 COPY ./scrape.py /code/
 #
-#CMD [ "python3 database.py && uvicorn main:app --host 0.0.0.0 --port 80"]
+#CMD [ "python3","database.py"]
 
