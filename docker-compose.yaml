@@ -13,6 +13,7 @@ services:
       SQLALCHEMY_DATABASE_URI: "postgresql://postgres:password@database:5432/scraperdb"  # Add SQLAlchemy database URI
     depends_on:
       - database  # Make sure scraper-api service waits for the database service to be up
+    restart: on-failure:5
 
   database:
     image: postgres:latest

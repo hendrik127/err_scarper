@@ -1,4 +1,4 @@
-FROM python:3.11
+FROM python:3.11-slim
 # 
 WORKDIR /code
 # 
@@ -8,8 +8,5 @@ RUN pip3 install --no-cache-dir --upgrade -r /code/requirements.txt
 # 
 COPY ./main.py  /code/
 COPY ./database.py /code/
-#COPY ./database.db /code/
 COPY ./scrape.py /code/
-#
-#CMD [ "python3","database.py"]
 
