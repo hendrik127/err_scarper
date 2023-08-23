@@ -1,5 +1,12 @@
 from sqlmodel import SQLModel, create_engine, Field
 from typing import Optional
+from dotenv import load_dotenv
+import os
+
+
+load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env'))
+DATABASE_URL = os.getenv("DATABASE_URL")
+engine = create_engine(DATABASE_URL, echo=True)
 
 
 class Article(SQLModel, table=True):
@@ -11,12 +18,6 @@ class Article(SQLModel, table=True):
     editor: str
     source: str
     content: str
-
-
-sqlite_file_name = "database.db"
-sqlite_url = f"sqlite:///{sqlite_file_name}"
-connect_args = {"check_same_thread": False}
-engine = create_engine(sqlite_url, echo=True, connect_args=connect_args)
 
 
 def create_tables():
