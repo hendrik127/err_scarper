@@ -4,6 +4,7 @@ from scrape import scrape_data
 from typing import List
 from sqlmodel import Session, select
 from database import Article, engine
+from fastapi.middleware.cors import CORSMiddleware
 
 
 def scrape(all: bool) -> List[Article]:
@@ -19,6 +20,18 @@ def scrape(all: bool) -> List[Article]:
 
 
 app = FastAPI()
+
+origins = [
+    "http://localhost:3000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.on_event("startup")
