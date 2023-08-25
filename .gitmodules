@@ -1,0 +1,3 @@
+[submodule "text-to-speech"]
+	path = text-to-speech
+	url = https://koodivaramu.eesti.ee/tartunlp/text-to-speech
