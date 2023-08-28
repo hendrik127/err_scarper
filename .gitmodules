@@ -1,3 +1,9 @@
 [submodule "text-to-speech"]
 	path = text-to-speech
 	url = https://koodivaramu.eesti.ee/tartunlp/text-to-speech
+[submodule "text-to-speech-worker"]
+	path = text-to-speech-worker
+	url = https://github.com/TartuNLP/text-to-speech-worker
+[submodule "text-to-speech-api"]
+	path = text-to-speech-api
+	url = https://github.com/TartuNLP/text-to-speech-api
