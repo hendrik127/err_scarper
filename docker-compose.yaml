@@ -31,3 +31,31 @@ services:
       POSTGRES_DB: scraperdb
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
+  rabbitmq:
+    image: 'rabbitmq'
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASS}
+  tts_api:
+    image: ghcr.io/tartunlp/text-to-speech-api:latest
+    environment:
+      - MQ_HOST=rabbitmq
+      - MQ_PORT=5672
+      - MQ_USERNAME=${RABBITMQ_USER}
+      - MQ_PASSWORD=${RABBITMQ_PASS}
+    ports:
+      - '8000:8000'
+    depends_on:
+      - rabbitmq
+  tts_worker:
+    image: ghcr.io/tartunlp/text-to-speech-worker:latest
+    environment:
+      - MQ_HOST=rabbitmq
+      - MQ_PORT=5672
+      - MQ_USERNAME=${RABBITMQ_USER}
+      - MQ_PASSWORD=${RABBITMQ_PASS}
+    command: [ "--model-name", "multispeaker" ]
+    volumes:
+      - ./models:/app/models
+    depends_on:
+      - rabbitmq 
