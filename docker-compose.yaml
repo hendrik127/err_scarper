@@ -37,7 +37,8 @@ services:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASS}
   tts_api:
-    image: ghcr.io/tartunlp/text-to-speech-api:latest
+    build:
+      context: ./text_to_speech_api
     environment:
       - MQ_HOST=rabbitmq
       - MQ_PORT=5672
@@ -48,7 +49,8 @@ services:
     depends_on:
       - rabbitmq
   tts_worker:
-    image: ghcr.io/tartunlp/text-to-speech-worker:latest
+    build:
+      context: ./text_to_speech_worker
     environment:
       - MQ_HOST=rabbitmq
       - MQ_PORT=5672
