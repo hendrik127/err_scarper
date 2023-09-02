@@ -29,6 +29,7 @@ def scrape(all: bool) -> List[Article]:
     session = Session(engine)
     for article in result:
         session.add(article)
+        session.add(ArticleAudio(article_id=article.id))
     session.commit()
     session.close()
     return result
@@ -105,9 +106,9 @@ async def audio(id: int, speaker: str = "Mari", speed: float = 1.0) -> Streaming
         stmt2 = select(ArticleAudio).where(ArticleAudio.id == id)
         result2 = session.exec(stmt2)
         audio = result2.first()
-
-        if not audio:
+        if not audio.audio:
             try:
+                print("MaKING CALL TO API")
                 async with httpx.AsyncClient() as client:
                     body = TextToSpeech(text=text,
                                         speaker=speaker, speed=speed)
