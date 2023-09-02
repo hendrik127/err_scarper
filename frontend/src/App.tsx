@@ -17,9 +17,10 @@ function App() {
     <div className="App">
       <div>
 
-        {articles.map((article, index) => (
+        {articles.map((article) => (
           <Article
-            key={index}
+            key={article.id}
+            id={article.id}
             title={article.title}
             content={article.content}
           />
