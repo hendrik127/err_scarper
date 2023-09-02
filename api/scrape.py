@@ -64,7 +64,7 @@ def scrape_data(all: bool):
                     "author": article_author,
                     "editor": article_editor,
                     "source": article_source,
-                    "content": article_text
+                    "content": article_text,
                  }
             )
     if not all:
