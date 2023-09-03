@@ -34,7 +34,8 @@ def scrape_data(all: bool):
             article_title = article_soup.find("header").text
             article_text = article_soup.find(
                 "div",
-                class_=["text", "flex-row"]).get_text(separator=" ", strip=True)
+                class_="body").find_all("p")
+            article_text = [paragraph.text for paragraph in article_text]
             article_author = article_soup.find("div", class_="byline").text
             if article_author == "":
                 article_author = "NULL"
