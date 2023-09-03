@@ -4,16 +4,16 @@ import IconButton from '@mui/material/IconButton';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import PauseIcon from '@mui/icons-material/Pause';
 import ReplayIcon from '@mui/icons-material/Replay';
-import { fetchArticleSound } from '../data/sound';
+import { fetchArticleSound } from '../data/sound'
 interface PlayButtonProps {
-  id: number;
+  n_id: number,
+  p_id: number
 }
 
 const PlayButton = (props: PlayButtonProps) => {
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
   const [audioState, setAudioState] = useState<'stopped' | 'playing' | 'paused' | 'finished'>('stopped');
   const [isLoading, setIsLoading] = useState(false);
-
   useEffect(() => {
     const newAudio = new Audio();
     newAudio.addEventListener('ended', handleAudioEnded);
@@ -32,7 +32,7 @@ const PlayButton = (props: PlayButtonProps) => {
     if (audioState === 'stopped' || audioState === "finished") {
       setIsLoading(true);
       try {
-        const soundBlob = await fetchArticleSound(props.id);
+        const soundBlob = await fetchArticleSound(props.n_id, props.p_id);
 
         const soundUrl = URL.createObjectURL(soundBlob); // Create a URL for the Blob
         audio!.src = soundUrl;

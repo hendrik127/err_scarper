@@ -1,7 +1,7 @@
 export interface ArticleData {
   id: number;
   title: string;
-  content: string;
+  content: string[];
 }
 
 export async function fetchArticles(): Promise<ArticleData[]> {

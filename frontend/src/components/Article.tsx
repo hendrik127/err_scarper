@@ -9,11 +9,10 @@ import { Card } from '@mui/material';
 import { useState } from 'react';
 import PlayButton from './PlayButton';
 
-
 interface ArticleProps {
   id: number;
   title: string;
-  content: string;
+  content: string[];
 }
 
 function Article(props: ArticleProps) {
@@ -23,7 +22,6 @@ function Article(props: ArticleProps) {
 
 
   const [expanded, setExpanded] = useState(false);
-
   const handleExpandClick = () => {
     setExpanded(!expanded);
   };
@@ -58,14 +56,15 @@ function Article(props: ArticleProps) {
   );
 
 
+  const paragraphsItems = props.content.map((paragraphContent, inx) => (<div><p>{paragraphContent}</p><PlayButton n_id={props.id} p_id={inx} /> </div>))
 
   return (
     <Card variant="outlined">{content}
 
       <Collapse in={expanded}>
 
-        <CardContent>{props.content}</CardContent>
-        <PlayButton id={props.id}></PlayButton>
+        <CardContent>
+          {paragraphsItems}</CardContent>
       </Collapse>
 
 

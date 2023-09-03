@@ -27,9 +27,11 @@ def scrape(all: bool) -> List[Article]:
     data = scrape_data(all)
     result = parse_obj_as(List[Article], data)
     session = Session(engine)
-    for article in result:
+    for key, article in enumerate(result):
         session.add(article)
-        session.add(ArticleAudio(article_id=article.id))
+        for i in range(len(article.content)):
+            session.add(ArticleAudio(
+                article_id=key+1, index=i))
     session.commit()
     session.close()
     return result
@@ -89,26 +91,26 @@ async def sort() -> List[Article]:
         return articles_by_date
 
 
-@app.get("/audio/{id}")
-async def audio(id: int, speaker: str = "Mari", speed: float = 1.0) -> StreamingResponse:
+@app.get("/audio/{article_id}/{index}")
+async def audio(article_id: int, index: int, speaker: str = "Mari", speed: float = 1.0) -> StreamingResponse:
     headers: Dict = {"Content-Type": "application/json"}
     content_type = "audio/wav"
 
     text = ""
     with Session(engine) as session:
-        stmt = select(Article).where(Article.id == id)
+        stmt = select(Article).where(Article.id == article_id)
         result = session.exec(stmt)
         article = result.first()
         if not article:
             return b''
-        text = article.title
+        text = article.content[index]
     with Session(engine) as session:
-        stmt2 = select(ArticleAudio).where(ArticleAudio.id == id)
+        stmt2 = select(ArticleAudio).where(ArticleAudio.article_id == article_id,
+                                           ArticleAudio.index == index)
         result2 = session.exec(stmt2)
         audio = result2.first()
         if not audio.audio:
             try:
-                print("MaKING CALL TO API")
                 async with httpx.AsyncClient() as client:
                     body = TextToSpeech(text=text,
                                         speaker=speaker, speed=speed)
