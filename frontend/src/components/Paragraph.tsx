@@ -12,11 +12,11 @@ interface ParagraphProps {
 
 function Paragraph(props: ParagraphProps) {
   const [isHovered, setIsHovered] = useState(false);
-
   // Handle play/pause button click
   const togglePlay = () => {
     // Call the parent component's function to toggle play state
     props.handlePlayButtonClick(props.p_id);
+
   };
 
   return (

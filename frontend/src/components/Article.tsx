@@ -1,6 +1,6 @@
 import { fetchArticleSound } from '../data/sound';
 import Collapse from '@mui/material/Collapse';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { styled } from '@mui/material/styles';
 import IconButton, { IconButtonProps } from '@mui/material/IconButton';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -9,6 +9,7 @@ import { Button, Card } from '@mui/material';
 import { useState } from 'react';
 import Paragraph from './Paragraph';
 import AudioPlayer from 'react-audio-player'
+import PlayButton from './PlayButton';
 interface ArticleProps {
   id: number;
   title: string;
@@ -17,7 +18,7 @@ interface ArticleProps {
 
 function Article(props: ArticleProps) {
 
-
+  console.log("AA", props.id)
 
   const [expanded, setExpanded] = useState(false);
   const handleExpandClick = () => {
@@ -25,7 +26,8 @@ function Article(props: ArticleProps) {
   };
   const [currentArticleIndex, setCurrentArticleIndex] = useState(-1);
   const [playAll, setPlayAll] = useState(false);
-
+  const [isPlaying, setIsPlaying] = useState(false);
+  const audio = useRef<HTMLAudioElement | null>(null);
 
   const playAllArticles = async () => {
     setExpanded(true);
@@ -39,11 +41,11 @@ function Article(props: ArticleProps) {
 
       if (articleSound) {
         await new Promise((resolve) => {
-          const audio = new Audio(URL.createObjectURL(articleSound));
-          audio.onended = () => {
+          audio.current = new Audio(URL.createObjectURL(articleSound));
+          audio.current.onended = () => {
             resolve(currentIndex); // Resolve with the current index
           };
-          audio.play();
+          audio.current.play();
         });
       } else {
         break;
@@ -54,9 +56,61 @@ function Article(props: ArticleProps) {
 
     setPlayAll(false);
   };
+  useEffect(() => {
+    const audioElement = audio.current;
+
+    if (audioElement) {
+
+      const l = () => {
+        console.log("ENEDE")
+        setCurrentArticleIndex(-1);
+
+      }
+      //audioElement.addEventListener('play', handlePlay);
+      audioElement.addEventListener('ended', l);
+    }
+
+    // Cleanup the event listeners when the component unmounts
+    return () => {
+      if (audioElement) {
+        //audioElement.removeEventListener('play', handlePlay);
+        audioElement.removeEventListener('ended', handlePause);
+      }
+    };
+  }, [audio]);
 
 
-  const paragraphsItems = props.content.map((paragraphContent, inx) => <Paragraph handlePlayButtonClick={setCurrentArticleIndex} isPlaying={currentArticleIndex === inx}
+  const handlePause = () => {
+
+  }
+  const playParagraph = async (index: number) => {
+    audio.current?.pause();
+    audio.current = null;
+    setCurrentArticleIndex(-1)
+    handlePause()
+    if (currentArticleIndex !== index) {
+
+      const articleSound = await fetchArticleSound(props.id, index);
+      setCurrentArticleIndex(index);
+      if (articleSound) {
+        await new Promise((resolve) => {
+          audio.current = new Audio(URL.createObjectURL(articleSound));
+          audio.current.onended = () => {
+            resolve(index); // Resolve with the current index
+          };
+          audio.current.play();
+        });
+      } else {
+
+
+      }
+    }
+
+  };
+
+
+
+  const paragraphsItems = props.content.map((paragraphContent, inx) => <Paragraph handlePlayButtonClick={playParagraph} isPlaying={currentArticleIndex === inx}
     key={Number(Math.random() * 10000)} text={paragraphContent} p_id={inx} />);
 
   interface ExpandMoreProps extends IconButtonProps {
@@ -77,7 +131,9 @@ function Article(props: ArticleProps) {
   const content = (
     <CardContent sx={{ display: "flex" }}>
       {props.title}
-      <Button onClick={playAllArticles} >Kuula</Button>
+      <PlayButton
+        isPlaying={playAll}
+        onClick={playAllArticles} />
       <ExpandMore
         expand={expanded}
         onClick={handleExpandClick}>
