@@ -11,7 +11,9 @@ function App() {
       setArticles(articles);
     }
     fetchData();
-  }, [])
+  }, []);
+
+
 
   return (
     <div className="App">
@@ -23,7 +25,6 @@ function App() {
             id={article.id}
             title={article.title}
             content={article.content}
-            setPlayCallback={setIsPlayingIndex}
           />
         ))}
 

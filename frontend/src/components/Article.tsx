@@ -14,7 +14,6 @@ interface ArticleProps {
   id: number;
   title: string;
   content: string[];
-  setPlayCallback: (arg: number) => void
 }
 
 function Article(props: ArticleProps) {
@@ -27,21 +26,8 @@ function Article(props: ArticleProps) {
   };
   const [currentArticleIndex, setCurrentArticleIndex] = useState(-1);
   const [playAll, setPlayAll] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
   const audio = useRef<HTMLAudioElement | null>(null);
 
-  const updateParent = () => {
-
-    if (currentArticleIndex === -1) {
-
-      props.setPlayCallback(-1);
-    } else {
-
-      props.setPlayCallback(props.id);
-    }
-
-
-  }
   const playAllArticles = async () => {
 
     if (playAll) {
@@ -85,30 +71,6 @@ function Article(props: ArticleProps) {
       setPlayAll(false);
     }
   };
-  useEffect(() => {
-    const audioElement = audio.current;
-
-    if (audioElement) {
-
-      const l = () => {
-        console.log("ENEDE")
-        setCurrentArticleIndex(-1);
-
-      }
-      //audioElement.addEventListener('play', handlePlay);
-      audioElement.addEventListener('ended', l);
-    }
-
-    // Cleanup the event listeners when the component unmounts
-    return () => {
-      if (audioElement) {
-        //audioElement.removeEventListener('play', handlePlay);
-        audioElement.removeEventListener('ended', handlePause);
-      }
-    };
-  }, [audio]);
-
-
   const handlePause = () => {
 
   }
