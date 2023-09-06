@@ -14,6 +14,7 @@ interface ArticleProps {
   id: number;
   title: string;
   content: string[];
+  setPlayCallback: (arg: number) => void
 }
 
 function Article(props: ArticleProps) {
@@ -29,32 +30,60 @@ function Article(props: ArticleProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const audio = useRef<HTMLAudioElement | null>(null);
 
-  const playAllArticles = async () => {
-    setExpanded(true);
-    setCurrentArticleIndex(0);
-    setPlayAll(true);
+  const updateParent = () => {
 
-    const contentLength = props.content.length;
-    for (let currentIndex = 0; currentIndex < contentLength; currentIndex++) {
-      console.log(currentIndex);
-      const articleSound = await fetchArticleSound(props.id, currentIndex);
+    if (currentArticleIndex === -1) {
 
-      if (articleSound) {
-        await new Promise((resolve) => {
-          audio.current = new Audio(URL.createObjectURL(articleSound));
-          audio.current.onended = () => {
-            resolve(currentIndex); // Resolve with the current index
-          };
-          audio.current.play();
-        });
-      } else {
-        break;
-      }
+      props.setPlayCallback(-1);
+    } else {
 
-      setCurrentArticleIndex(currentIndex + 1);
+      props.setPlayCallback(props.id);
     }
 
-    setPlayAll(false);
+
+  }
+  const playAllArticles = async () => {
+
+    if (playAll) {
+      setPlayAll(false)
+      audio.current?.pause();
+      audio.current = null;
+      setCurrentArticleIndex(-1)
+
+    } else {
+      if (audio.current?.play) {
+        audio.current?.pause();
+        audio.current = null;
+        setCurrentArticleIndex(-1)
+
+
+      }
+      setExpanded(true);
+      setCurrentArticleIndex(0);
+      setPlayAll(true);
+
+      const contentLength = props.content.length;
+      for (let currentIndex = 0; currentIndex < contentLength; currentIndex++) {
+        console.log(currentIndex);
+        const articleSound = await fetchArticleSound(props.id, currentIndex);
+
+        if (articleSound) {
+          await new Promise((resolve) => {
+            audio.current = new Audio(URL.createObjectURL(articleSound));
+            audio.current.onended = () => {
+              resolve(currentIndex); // Resolve with the current index
+            };
+            audio.current.play();
+          });
+        } else {
+          break;
+        }
+
+        setCurrentArticleIndex(currentIndex + 1);
+      }
+
+      setPlayAll(false);
+    }
   };
   useEffect(() => {
     const audioElement = audio.current;
@@ -84,6 +113,7 @@ function Article(props: ArticleProps) {
 
   }
   const playParagraph = async (index: number) => {
+    setPlayAll(false);
     audio.current?.pause();
     audio.current = null;
     setCurrentArticleIndex(-1)
@@ -105,6 +135,10 @@ function Article(props: ArticleProps) {
 
       }
     }
+
+    audio.current = null;
+    setCurrentArticleIndex(-1)
+
 
   };
 

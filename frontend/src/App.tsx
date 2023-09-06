@@ -4,7 +4,7 @@ import Article from './components/Article'
 function App() {
 
   const [articles, setArticles] = useState<ArticleData[]>([])
-
+  const [isPlayingIndex, setIsPlayingIndex] = useState(-1);
   useEffect(() => {
     async function fetchData() {
       const articles = await fetchArticles();
@@ -23,6 +23,7 @@ function App() {
             id={article.id}
             title={article.title}
             content={article.content}
+            setPlayCallback={setIsPlayingIndex}
           />
         ))}
 
