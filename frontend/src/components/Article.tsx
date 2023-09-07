@@ -115,7 +115,7 @@ function Article(props: ArticleProps) {
 
   const ExpandMore = styled((props: ExpandMoreProps) => {
     const { expand, ...other } = props;
-    return <IconButton {...other} />;
+    return (<div><IconButton {...other} /></div>);
   })(({ theme, expand }) => ({
     transform: !expand ? 'rotate(0deg)' : 'rotate(180deg)',
     marginLeft: 'auto',
