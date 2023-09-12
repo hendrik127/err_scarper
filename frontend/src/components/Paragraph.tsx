@@ -1,46 +1,60 @@
+import { useState, useRef } from 'react';
+import { Box, Button } from '@mui/material';
+import { useMyContext } from '../AudioContext';
 
-import React, { useState } from 'react';
-import { Box } from '@mui/system';
-import PlayButton from './PlayButton';
-
+import IconButton from '@mui/material/IconButton';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import PauseIcon from '@mui/icons-material/Pause';
 interface ParagraphProps {
   text: string;
   p_id: number;
-  isPlaying: boolean;
-  handlePlayButtonClick: (arg: number) => void;
+  article: number
 }
 
 function Paragraph(props: ParagraphProps) {
+
+  const context = useMyContext();
   const [isHovered, setIsHovered] = useState(false);
-  // Handle play/pause button click
-  const togglePlay = () => {
-    // Call the parent component's function to toggle play state
-    props.handlePlayButtonClick(props.p_id);
 
-  };
+  const handleButtonClick = async () => {
+    context.handleAudio(props.article, props.p_id);
 
+    ref.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+
+
+  const isPlaying = context.isPlaying(props.article, props.p_id);
+
+  const ref = useRef<HTMLButtonElement | null>(null);
+
+  if (isPlaying) {
+
+    ref.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
   return (
+
     <Box
       sx={{
         p: 2,
         transition: 'background-color 0.3s ease-in-out',
-        backgroundColor: props.isPlaying || isHovered ? '#333' : 'transparent',
-        color: props.isPlaying || isHovered ? '#fff' : 'inherit',
+        backgroundColor: isPlaying || isHovered ? '#234' : 'transparent',
+        color: isPlaying || isHovered ? '#fff' : 'inherit',
         '&:hover': {
-          backgroundColor: props.isPlaying ? '#333' : '#666',
-          color: props.isPlaying ? '#fff' : '#fff',
+          backgroundColor: isPlaying ? '#234' : '#666',
+          color: isPlaying ? '#fff' : '#fff',
         },
         display: 'flex',
         alignItems: 'center',
+        justifyContent: "space-between"
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       <p>{props.text}</p>
-      <PlayButton
-        isPlaying={props.isPlaying}
-        onClick={togglePlay}
-      />
+      <IconButton ref={ref} onClick={handleButtonClick} style={{ color: 'black' }} >
+        {isPlaying ? <PauseIcon fontSize="large" /> : <PlayArrowIcon fontSize="large" />}
+      </IconButton>
     </Box>
   );
 }

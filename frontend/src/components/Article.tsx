@@ -1,15 +1,13 @@
-import { fetchArticleSound } from '../data/sound';
 import Collapse from '@mui/material/Collapse';
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import { styled } from '@mui/material/styles';
 import IconButton, { IconButtonProps } from '@mui/material/IconButton';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import CardContent from '@mui/material/CardContent';
-import { Button, Card } from '@mui/material';
+import { Box, Card } from '@mui/material';
 import { useState } from 'react';
 import Paragraph from './Paragraph';
-import AudioPlayer from 'react-audio-player'
-import PlayButton from './PlayButton';
+import { useMyContext } from '../AudioContext';
 interface ArticleProps {
   id: number;
   title: string;
@@ -18,96 +16,18 @@ interface ArticleProps {
 
 function Article(props: ArticleProps) {
 
-  console.log("AA", props.id)
+  // console.log("AA", props.id)
 
+  const context = useMyContext();
   const [expanded, setExpanded] = useState(false);
-  const handleExpandClick = () => {
+  const handleExpandClick = async () => {
     setExpanded(!expanded);
-  };
-  const [currentArticleIndex, setCurrentArticleIndex] = useState(-1);
-  const [playAll, setPlayAll] = useState(false);
-  const audio = useRef<HTMLAudioElement | null>(null);
+    if (!expanded) {
 
-  const playAllArticles = async () => {
-
-    if (playAll) {
-      setPlayAll(false)
-      audio.current?.pause();
-      audio.current = null;
-      setCurrentArticleIndex(-1)
-
-    } else {
-      if (audio.current?.play) {
-        audio.current?.pause();
-        audio.current = null;
-        setCurrentArticleIndex(-1)
-
-
-      }
-      setExpanded(true);
-      setCurrentArticleIndex(0);
-      setPlayAll(true);
-
-      const contentLength = props.content.length;
-      for (let currentIndex = 0; currentIndex < contentLength; currentIndex++) {
-        console.log(currentIndex);
-        const articleSound = await fetchArticleSound(props.id, currentIndex);
-
-        if (articleSound) {
-          await new Promise((resolve) => {
-            audio.current = new Audio(URL.createObjectURL(articleSound));
-            audio.current.onended = () => {
-              resolve(currentIndex); // Resolve with the current index
-            };
-            audio.current.play();
-          });
-        } else {
-          break;
-        }
-
-        setCurrentArticleIndex(currentIndex + 1);
-      }
-
-      setPlayAll(false);
-    }
-  };
-  const handlePause = () => {
-
-  }
-  const playParagraph = async (index: number) => {
-    setPlayAll(false);
-    audio.current?.pause();
-    audio.current = null;
-    setCurrentArticleIndex(-1)
-    handlePause()
-    if (currentArticleIndex !== index) {
-
-      const articleSound = await fetchArticleSound(props.id, index);
-      setCurrentArticleIndex(index);
-      if (articleSound) {
-        await new Promise((resolve) => {
-          audio.current = new Audio(URL.createObjectURL(articleSound));
-          audio.current.onended = () => {
-            resolve(index); // Resolve with the current index
-          };
-          audio.current.play();
-        });
-      } else {
-
-
-      }
+      context.handleAudio(props.id, 0);
     }
 
-    audio.current = null;
-    setCurrentArticleIndex(-1)
-
-
   };
-
-
-
-  const paragraphsItems = props.content.map((paragraphContent, inx) => <Paragraph handlePlayButtonClick={playParagraph} isPlaying={currentArticleIndex === inx}
-    key={Number(Math.random() * 10000)} text={paragraphContent} p_id={inx} />);
 
   interface ExpandMoreProps extends IconButtonProps {
     expand: boolean;
@@ -115,7 +35,7 @@ function Article(props: ArticleProps) {
 
   const ExpandMore = styled((props: ExpandMoreProps) => {
     const { expand, ...other } = props;
-    return (<div><IconButton {...other} /></div>);
+    return (<IconButton {...other} />);
   })(({ theme, expand }) => ({
     transform: !expand ? 'rotate(0deg)' : 'rotate(180deg)',
     marginLeft: 'auto',
@@ -124,25 +44,30 @@ function Article(props: ArticleProps) {
     }),
   }));
 
+
   const content = (
-    <CardContent sx={{ display: "flex" }}>
+    <CardContent sx={{ display: 'flex' }}>
       {props.title}
-      <PlayButton
-        isPlaying={playAll}
-        onClick={playAllArticles} />
-      <ExpandMore
+      < ExpandMore
         expand={expanded}
-        onClick={handleExpandClick}>
+        onClick={handleExpandClick} >
         <ExpandMoreIcon />
-      </ExpandMore>
-    </CardContent>
+      </ExpandMore >
+    </CardContent >
   );
 
   return (
     <Card variant="outlined">{content}
       <Collapse in={expanded}>
         <CardContent>
-          {paragraphsItems}</CardContent>
+          {
+            props.content.map((paragraphContent, inx) => <Paragraph
+              article={props.id}
+              key={`${props.id}-${inx}`}
+              text={paragraphContent} p_id={inx}
+            />)
+
+          }</CardContent>
       </Collapse>
     </Card >
   );
