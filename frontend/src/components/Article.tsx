@@ -1,5 +1,5 @@
 import Collapse from '@mui/material/Collapse';
-import { useRef } from 'react';
+import { lazy } from 'react';
 import { styled } from '@mui/material/styles';
 import IconButton, { IconButtonProps } from '@mui/material/IconButton';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';

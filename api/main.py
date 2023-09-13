@@ -74,6 +74,13 @@ async def root() -> List[Article]:
         return result
 
 
+@app.get("/posts/{id}")
+async def posts(id: int) -> List[Article]:
+    with Session(engine) as session:
+        result = session.exec(select(Article).where(Article.id == id)).all()
+        return result
+
+
 @app.get("/sync")
 async def sync():
     # Fetch new articles that are not in the database yet.
