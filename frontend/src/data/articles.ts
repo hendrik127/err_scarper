@@ -4,20 +4,12 @@ export interface ArticleData {
   content: string[];
 }
 
-export async function fetchArticles(): Promise<ArticleData[]> {
-  const response = await fetch('http://localhost/sort');
+export async function fetchPage(page = 1, pageSize = 20): Promise<ArticleData[]> {
+  const response = await fetch(`http://localhost/posts?page=${page}&page_size=${pageSize}`);
   const data = await response.json();
   console.log(data)
-  const d = data.slice(0, 20);
-
-  return d;
-}
-
-export async function fetchArticle(id: number): Promise<ArticleData[]> {
-  const response = await fetch(`http://localhost/posts/${id}`);
-  const data = await response.json();
-  console.log(data)
-  // const d = data.slice(0, 20);
 
   return data;
 }
+
+

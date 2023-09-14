@@ -1,27 +1,29 @@
 'use client'
 import { useEffect, useState, useRef } from 'react';
-import { fetchArticles, ArticleData, fetchArticle } from './data/articles'
+import { ArticleData, fetchPage } from './data/articles'
 import Article from './components/Article'
 import { MyProvider } from './AudioContext';
 import Player from './components/Player'
 function App() {
 
   const [articles, setArticles] = useState<ArticleData[]>([])
-
-  const [postIndex, setPostIndex] = useState(19);
+  const [allArticlesLoaded, setAllArticlesLoaded] = useState(false);
+  const [pageIndex, setPageIndex] = useState(1);
 
   useEffect(() => {
     async function fetchData() {
-      const articles = await fetchArticles();
-      setArticles(articles);
+      const newArticles = await fetchPage(pageIndex);
+      if (newArticles.length === 0) {
+        setAllArticlesLoaded(true);
+      }
+      setArticles([...articles, ...newArticles]);
     }
-    fetchData();
-  }, []);
+    if (!allArticlesLoaded) {
+      fetchData();
+    }
+  }, [pageIndex]);
 
-  async function fetchData() {
-    const article = await fetchArticle(articles.length);
-    setArticles(articles => [...articles, article[0]]);
-  }
+
 
 
 
@@ -35,7 +37,7 @@ function App() {
 
       if (isNearBottom) {
         console.log("Reached bottom");
-        await fetchData();
+        setPageIndex(pageIndex + 1);
       }
     }
   };
@@ -52,16 +54,6 @@ function App() {
       };
     }
   }, [onScroll]);
-
-
-  //   fetchData();
-  // }, []);
-  //
-
-
-
-
-
 
   return (
     <MyProvider>

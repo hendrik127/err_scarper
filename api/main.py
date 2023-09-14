@@ -73,11 +73,23 @@ async def root() -> List[Article]:
         result = session.exec(select(Article)).all()
         return result
 
+#
+# @app.get("/posts/all")
+# async def posts(id: int) -> List[Article]:
+#     with Session(engine) as session:
+#         result = session.exec(select(Article).where(Article.id == id)).all()
+#         return result
+#
 
-@app.get("/posts/{id}")
-async def posts(id: int) -> List[Article]:
+
+@app.get("/posts/")
+async def posts_by_page(page: int = 1, page_size: int = 20) -> List[Article]:
+    start = (page - 1) * page_size
+    end = start + page_size
+
     with Session(engine) as session:
-        result = session.exec(select(Article).where(Article.id == id)).all()
+        result = session.exec(select(Article).where(
+            Article.id > start, Article.id <= end)).all()
         return result
 
 
