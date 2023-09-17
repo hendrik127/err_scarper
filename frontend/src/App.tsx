@@ -1,59 +1,82 @@
-'use client'
+
 import { useEffect, useState, useRef } from 'react';
 import { ArticleData, fetchPage } from './data/articles'
 import Article from './components/Article'
 import { MyProvider } from './AudioContext';
 import Player from './components/Player'
+import CircularProgress from '@mui/material/CircularProgress';
+import { Box } from '@mui/system';
 function App() {
 
   const [articles, setArticles] = useState<ArticleData[]>([])
   const [allArticlesLoaded, setAllArticlesLoaded] = useState(false);
-  const [pageIndex, setPageIndex] = useState(1);
+  const [pageIndex, setPageIndex] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [nearBottom, setNearBottom] = useState(false);
+
+
+  async function fetchData() {
+    if ((nearBottom || articles.length === 0) && !loading) {
+      setLoading(true);
+
+      await fetchPage(pageIndex + 1).then((newArticles) => {
+
+        console.log("FETCHING")
+        if (newArticles.length === 0) {
+          setAllArticlesLoaded(true);
+        } else {
+          setArticles([...articles, ...newArticles])
+        }
+
+      }
+      ).then(_ => {
+        setLoading(false);
+        setPageIndex(pageIndex + 1)
+
+      })
+
+
+    }
+  }
 
   useEffect(() => {
-    async function fetchData() {
-      const newArticles = await fetchPage(pageIndex);
-      if (newArticles.length === 0) {
-        setAllArticlesLoaded(true);
-      }
-      setArticles([...articles, ...newArticles]);
-    }
-    if (!allArticlesLoaded) {
-      fetchData();
-    }
-  }, [pageIndex]);
-
-
-
-
-
+    fetchData();
+  }, []);
 
   const listRef = useRef<HTMLDivElement | null>(null);
 
-  const onScroll = async () => {
-    if (listRef.current) {
-      const { scrollTop, scrollHeight, clientHeight } = listRef.current;
-      const isNearBottom = scrollTop + clientHeight >= scrollHeight;
-
-      if (isNearBottom) {
-        console.log("Reached bottom");
-        setPageIndex(pageIndex + 1);
-      }
-    }
-  };
-
   useEffect(() => {
+    const onScroll = async () => {
+      if (listRef.current) {
+        const { scrollTop, scrollHeight, clientHeight } = listRef.current;
+        const isNearBottom = scrollTop + clientHeight >= scrollHeight * 0.95//((0.8 + (0.01 * pageIndex)) * scrollHe
+        if (isNearBottom) {
+          setNearBottom(true)
+          // console.log("NEAR")
+          // console.log(allArticlesLoaded, "all articles")
+          // console.log(loading, "loading")
+          if (!allArticlesLoaded && !loading) {
+            await fetchData();
+
+          }
+        } else {
+          if (!allArticlesLoaded) {
+
+            setNearBottom(false);
+          }
+        }
+      }
+    };
+
+
     const listElement = listRef.current;
-    console.log(listElement)
     if (listElement) {
       listElement.addEventListener("scroll", onScroll);
-
-      // Clean-up
       return () => {
         listElement.removeEventListener("scroll", onScroll);
       };
     }
-  }, [onScroll]);
+  }, [fetchData, loading, allArticlesLoaded]);
 
   return (
     <MyProvider>
@@ -64,24 +87,29 @@ function App() {
             Loetud TartuNLP kõnesünteesi mudelite poolt!
           </p>
         </div>
-        <div style={{ overflow: 'auto', height: '78vh' }} ref={listRef}>
+        <div style={{ overflow: 'auto', height: '78vh', justifyItems: 'center' }} ref={listRef}>
 
           {articles.map((article) => (
             <Article
               key={article.id}
               id={article.id}
-              title={article.title}
+              title={String(article.id) + ". " + article.title}
               content={article.content}
             />
           ))}
 
-        </div>
 
+          {(nearBottom && !allArticlesLoaded) && <Box sx={{ width: '100%', textAlign: 'center' }}><CircularProgress sx={{
+
+            color: 'black',
+          }} /></Box>}
+          {allArticlesLoaded && <Box sx={{ width: '100%', textAlign: 'center' }} ><h1>...</h1></Box>}
+        </div>
 
         <Player />
       </div>
-    </MyProvider>
+    </MyProvider >
   );
 }
 
-export default App;
+export default App
