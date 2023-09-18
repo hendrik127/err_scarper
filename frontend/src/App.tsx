@@ -3,9 +3,10 @@ import { useEffect, useState, useRef } from 'react';
 import { ArticleData, fetchPage } from './data/articles'
 import Article from './components/Article'
 import { MyProvider } from './AudioContext';
-import Player from './components/Player'
+import AudioPlayer from './components/Player'
 import CircularProgress from '@mui/material/CircularProgress';
 import { Box } from '@mui/system';
+import './style/App.css'
 function App() {
 
   const [articles, setArticles] = useState<ArticleData[]>([])
@@ -16,11 +17,10 @@ function App() {
 
 
   async function fetchData() {
-    if ((nearBottom || articles.length === 0) && !loading) {
+    if ((nearBottom && !loading) || articles.length === 0) {
       setLoading(true);
 
       await fetchPage(pageIndex + 1).then((newArticles) => {
-
         console.log("FETCHING")
         if (newArticles.length === 0) {
           setAllArticlesLoaded(true);
@@ -49,13 +49,14 @@ function App() {
     const onScroll = async () => {
       if (listRef.current) {
         const { scrollTop, scrollHeight, clientHeight } = listRef.current;
-        const isNearBottom = scrollTop + clientHeight >= scrollHeight * 0.95//((0.8 + (0.01 * pageIndex)) * scrollHe
+        const isNearBottom = scrollTop + clientHeight >= (0.8 + (0.01 * pageIndex)) * scrollHeight
         if (isNearBottom) {
           setNearBottom(true)
-          // console.log("NEAR")
+          console.log("NEAR")
           // console.log(allArticlesLoaded, "all articles")
           // console.log(loading, "loading")
           if (!allArticlesLoaded && !loading) {
+            console.log("UF2")
             await fetchData();
 
           }
@@ -81,12 +82,13 @@ function App() {
   return (
     <MyProvider>
       <div className="App">
-        <div>
-          <h1>RahvusHääling</h1>
-          <p>Tere tulemast RahvusHäälingusse. Kuula ERR-i uudiseid meie ilusas eesti keeles.
+        <Box>
+
+          <h1 className='header'>RahvusHääling</h1>
+          <p className='header'>Tere tulemast RahvusHäälingusse. Kuula ERR-i uudiseid meie ilusas eesti keeles.
             Loetud TartuNLP kõnesünteesi mudelite poolt!
           </p>
-        </div>
+        </Box>
         <div style={{ overflow: 'auto', height: '78vh', justifyItems: 'center' }} ref={listRef}>
 
           {articles.map((article) => (
@@ -99,14 +101,13 @@ function App() {
           ))}
 
 
-          {(nearBottom && !allArticlesLoaded) && <Box sx={{ width: '100%', textAlign: 'center' }}><CircularProgress sx={{
+          {(loading && !allArticlesLoaded) && <Box sx={{ width: '100%', textAlign: 'center' }}><CircularProgress sx={{
 
             color: 'black',
           }} /></Box>}
           {allArticlesLoaded && <Box sx={{ width: '100%', textAlign: 'center' }} ><h1>...</h1></Box>}
         </div>
-
-        <Player />
+        <AudioPlayer />
       </div>
     </MyProvider >
   );

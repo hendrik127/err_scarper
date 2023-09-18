@@ -42,6 +42,10 @@ position: fixed;
   text-align: center;
   z-index: 999; 
 }
+.header {
 
+  margin: 1vw
+
+}
 
 
