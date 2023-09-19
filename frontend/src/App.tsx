@@ -101,7 +101,7 @@ function App() {
           ))}
 
 
-          {(loading && !allArticlesLoaded) && <Box sx={{ width: '100%', textAlign: 'center' }}><CircularProgress sx={{
+          {(nearBottom && !allArticlesLoaded) && <Box sx={{ width: '100%', textAlign: 'center' }}><CircularProgress sx={{
 
             color: 'black',
           }} /></Box>}
