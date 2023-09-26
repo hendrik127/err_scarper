@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Box, Button } from '@mui/material';
 import { useMyContext } from '../AudioContext';
 
@@ -15,17 +15,25 @@ function Paragraph(props: ParagraphProps) {
 
   const context = useMyContext();
   const [isHovered, setIsHovered] = useState(false);
-
+  const [isPlaying, setIsPlaying] = useState(false)
   const handleButtonClick = async () => {
-    context.handleAudio(props.article, props.p_id);
-
     ref.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    context.setArticle(props.article);
+    context.setParagraph(props.p_id)
   }
 
+  useEffect(() => {
+    const p = () => { return context.article === props.article && context.paragraph === props.p_id }
+    setIsPlaying(p());
 
+    if (p()) {
 
-  const isPlaying = context.isPlaying(props.article, props.p_id);
+      ref.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
 
+  }
+    , [context]
+  )
   const ref = useRef<HTMLButtonElement | null>(null);
 
   if (isPlaying) {
@@ -34,7 +42,7 @@ function Paragraph(props: ParagraphProps) {
   }
   return (
 
-    <Box
+    <Box ref={ref} onClick={handleButtonClick}
       sx={{
         p: 2,
         transition: 'background-color 0.3s ease-in-out',
@@ -51,10 +59,8 @@ function Paragraph(props: ParagraphProps) {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
+
       <p>{props.text}</p>
-      <IconButton ref={ref} onClick={handleButtonClick} style={{ color: 'black' }} >
-        {isPlaying ? <PauseIcon fontSize="large" /> : <PlayArrowIcon fontSize="large" />}
-      </IconButton>
     </Box>
   );
 }
