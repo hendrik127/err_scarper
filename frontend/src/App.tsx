@@ -1,12 +1,14 @@
 
-import { useEffect, useState, useRef } from 'react';
+import Paper from '@mui/material/Paper';
+import { Card, CardActionArea, Typography } from '@mui/material';
+import { memo, useEffect, useState, useRef, useMemo } from 'react';
 import { ArticleData, fetchPage } from './data/articles'
 import Article from './components/Article'
-import { MyProvider } from './AudioContext';
 import AudioPlayer from './components/Player'
 import CircularProgress from '@mui/material/CircularProgress';
 import { Box } from '@mui/system';
 import './style/App.css'
+import { render } from '@testing-library/react';
 function App() {
 
   const [articles, setArticles] = useState<ArticleData[]>([])
@@ -32,10 +34,7 @@ function App() {
       ).then(_ => {
         setLoading(false);
         setPageIndex(pageIndex + 1)
-
       })
-
-
     }
   }
 
@@ -52,17 +51,14 @@ function App() {
         const isNearBottom = scrollTop + clientHeight >= (0.8 + (0.01 * pageIndex)) * scrollHeight
         if (isNearBottom) {
           setNearBottom(true)
-          console.log("NEAR")
-          // console.log(allArticlesLoaded, "all articles")
-          // console.log(loading, "loading")
+          // console.log("NEAR")
           if (!allArticlesLoaded && !loading) {
-            console.log("UF2")
+            // console.log("UF2")
             await fetchData();
 
           }
         } else {
           if (!allArticlesLoaded) {
-
             setNearBottom(false);
           }
         }
@@ -79,37 +75,37 @@ function App() {
     }
   }, [fetchData, loading, allArticlesLoaded]);
 
+  const rendered = useMemo(() => {
+    return articles.map((article) => (
+      <Article
+        key={article.id}
+        id={article.id}
+        title={String(article.id) + ". " + article.title}
+        content={article.content}
+      />
+    ))
+  }, [articles])
   return (
-    <MyProvider>
-      <div className="App">
-        <Box>
+    <div className="App">
+      <Paper className='header' sx={{ borderBottom: 'none' }} elevation={5}>
+        <h1 >RahvusHääling</h1>
+        <p >Tere tulemast RahvusHäälingusse. Kuula ERR-i uudiseid meie ilusas eesti keeles.
+          Loetud TartuNLP kõnesünteesi mudelite poolt!
+        </p>
+      </Paper>
+      <div style={{ overflow: 'auto', height: '99vh', justifyItems: 'center' }} ref={listRef}>
 
-          <h1 className='header'>RahvusHääling</h1>
-          <p className='header'>Tere tulemast RahvusHäälingusse. Kuula ERR-i uudiseid meie ilusas eesti keeles.
-            Loetud TartuNLP kõnesünteesi mudelite poolt!
-          </p>
-        </Box>
-        <div style={{ overflow: 'auto', height: '78vh', justifyItems: 'center' }} ref={listRef}>
-
-          {articles.map((article) => (
-            <Article
-              key={article.id}
-              id={article.id}
-              title={String(article.id) + ". " + article.title}
-              content={article.content}
-            />
-          ))}
+        {rendered}
 
 
-          {(nearBottom && !allArticlesLoaded) && <Box sx={{ width: '100%', textAlign: 'center' }}><CircularProgress sx={{
+        {(nearBottom && !allArticlesLoaded) && <Box sx={{ width: '100%', textAlign: 'center' }}><CircularProgress sx={{
 
-            color: 'black',
-          }} /></Box>}
-          {allArticlesLoaded && <Box sx={{ width: '100%', textAlign: 'center' }} ><h1>...</h1></Box>}
-        </div>
-        <AudioPlayer />
+          color: 'black',
+        }} /></Box>}
+        {allArticlesLoaded && <h1>...</h1>}
       </div>
-    </MyProvider >
+      <AudioPlayer />
+    </div>
   );
 }
 
