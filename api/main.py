@@ -24,6 +24,10 @@ TEXT_TO_SPEECH_URL = "https://api.tartunlp.ai/text-to-speech/v2"
 
 def scrape(all: bool) -> List[Article]:
     # Whether to seed empty database or to only get new articles.
+    if not all:
+        old_count = len(root())
+    else:
+        old_count = 0
     data = scrape_data(all)
     result = parse_obj_as(List[Article], data)
     session = Session(engine)
@@ -31,7 +35,7 @@ def scrape(all: bool) -> List[Article]:
         session.add(article)
         for i in range(len(article.content)):
             session.add(ArticleAudio(
-                article_id=key+1, index=i))
+                article_id=key+1+old_count, index=i+old_count))
     session.commit()
     session.close()
     return result
