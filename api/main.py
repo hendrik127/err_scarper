@@ -11,7 +11,8 @@ from sqlmodel import Session, select
 from database import Article, ArticleAudio, engine
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-
+from fastapi.responses import JSONResponse
+from fastapi.encoders import jsonable_encoder
 
 class TextToSpeech(BaseModel):
     text: str
@@ -24,10 +25,12 @@ TEXT_TO_SPEECH_URL = "https://api.tartunlp.ai/text-to-speech/v2"
 
 def scrape(all: bool) -> List[Article]:
     # Whether to seed empty database or to only get new articles.
-    if not all:
-        old_count = len(root())
-    else:
-        old_count = 0
+    old_count = 0
+    with Session(engine) as session:
+        articles = select(Article)
+        old_count = len(session.exec(articles).all())
+
+
     data = scrape_data(all)
     result = parse_obj_as(List[Article], data)
     session = Session(engine)
@@ -94,7 +97,28 @@ async def posts_by_page(page: int = 1, page_size: int = 20) -> List[Article]:
     with Session(engine) as session:
         result = session.exec(select(Article).where(
             Article.id > start, Article.id <= end)).all()
+
         return result
+
+@app.get("/titles/")
+async def posts_by_page(page: int = 1, page_size: int = 20) -> JSONResponse:
+    start = (page - 1) * page_size
+    end = start + page_size
+
+    with Session(engine) as session:
+        result = session.exec(select(Article.id, Article.title).where(
+                Article.id > start, Article.id <= end)).all()
+        json_compatible = jsonable_encoder(result)
+        return JSONResponse(status_code=200, content=json_compatible)
+
+@app.get("/paragraphs/")
+async def posts_by_page(id: int) -> List[str]:
+    with Session(engine) as session:
+        result = session.exec(select(Article.content).where(
+            Article.id == id)).first()
+        return result
+
+
 
 
 @app.get("/sync")
