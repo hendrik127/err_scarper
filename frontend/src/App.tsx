@@ -79,7 +79,7 @@ function App() {
         key={article.id}
         id={article.id}
         title={String(article.id) + ". " + article.title}
-        content={article.content}
+        // content={article.content}
       />
     ))
   }, [articles])

@@ -1,17 +1,15 @@
 import Collapse from '@mui/material/Collapse';
-import { memo } from 'react';
-import { styled } from '@mui/material/styles';
-import IconButton, { IconButtonProps } from '@mui/material/IconButton';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import CardContent from '@mui/material/CardContent';
-import { Box, Card, CardActionArea, Typography } from '@mui/material';
-import { useState } from 'react';
+import {Card, CardActionArea, Typography } from '@mui/material';
+import { useEffect, useState } from 'react';
 import Paragraph from './Paragraph';
 import { useMyContext } from '../AudioContext';
+import { fetchParagraphs } from '../data/paragraphs';
 interface ArticleProps {
   id: number;
   title: string;
-  content: string[];
+  // content: string[];
 }
 
 function Article(props: ArticleProps) {
@@ -20,6 +18,7 @@ function Article(props: ArticleProps) {
 
   const context = useMyContext();
   const [expanded, setExpanded] = useState(false);
+  const [paragraphs, setParagraphs] = useState<string[]>([])
   const handleExpandClick = async () => {
     setExpanded(!expanded);
     if (!expanded) {
@@ -29,6 +28,16 @@ function Article(props: ArticleProps) {
     }
 
   };
+
+  useEffect(()=>{
+    if(expanded && paragraphs.length===0){
+      fetchParagraphs(props.id).then(
+        data => {
+          setParagraphs(data)
+        }
+      )
+    }
+  },[expanded])
 
 
 
@@ -58,13 +67,14 @@ function Article(props: ArticleProps) {
       <Collapse in={expanded}>
         <CardContent >
           {
-            props.content.map((paragraphContent, inx) => <Paragraph
+            paragraphs.map((paragraph, inx) => <Paragraph
               article={props.id}
               key={`${props.id}-${inx}`}
-              text={paragraphContent} p_id={inx}
+              text={paragraph} p_id={inx}
             />)
 
-          }</CardContent>
+          }
+        </CardContent>
       </Collapse>
     </Card >
   );

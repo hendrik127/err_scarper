@@ -38,7 +38,7 @@ def scrape(all: bool) -> List[Article]:
         session.add(article)
         for i in range(len(article.content)):
             session.add(ArticleAudio(
-                article_id=key+1+old_count, index=i+old_count))
+                article_id=key+1+old_count, index=i+old_count, audio=b''))
     session.commit()
     session.close()
     return result
@@ -80,28 +80,10 @@ async def root() -> List[Article]:
         result = session.exec(select(Article)).all()
         return result
 
-#
-# @app.get("/posts/all")
-# async def posts(id: int) -> List[Article]:
-#     with Session(engine) as session:
-#         result = session.exec(select(Article).where(Article.id == id)).all()
-#         return result
-#
-
-
-@app.get("/posts/")
-async def posts_by_page(page: int = 1, page_size: int = 20) -> List[Article]:
-    start = (page - 1) * page_size
-    end = start + page_size
-
-    with Session(engine) as session:
-        result = session.exec(select(Article).where(
-            Article.id > start, Article.id <= end)).all()
-
-        return result
 
 @app.get("/titles/")
-async def posts_by_page(page: int = 1, page_size: int = 20) -> JSONResponse:
+async def titles_by_page(page: int = 1, page_size: int = 20) -> JSONResponse:
+    #Returns titles of articles by page size. 
     start = (page - 1) * page_size
     end = start + page_size
 
@@ -112,13 +94,12 @@ async def posts_by_page(page: int = 1, page_size: int = 20) -> JSONResponse:
         return JSONResponse(status_code=200, content=json_compatible)
 
 @app.get("/paragraphs/")
-async def posts_by_page(id: int) -> List[str]:
+async def paragraphs(id: int) -> List[str]:
+    #returns the paragraphs of an article by id.
     with Session(engine) as session:
         result = session.exec(select(Article.content).where(
             Article.id == id)).first()
         return result
-
-
 
 
 @app.get("/sync")
