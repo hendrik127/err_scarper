@@ -13,7 +13,7 @@ const AudioPlayer = () => {
   console.log("PLaYETRR")
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [volume, setVolume] = useState(1);
+  const [volume, setVolume] = useState(0.5);
   const [trackLength, setTrackLength] = useState(0);
   const [autoplay, setautoplay] = useState(false);
   const context = useMyContext()
@@ -24,6 +24,26 @@ const AudioPlayer = () => {
   const handleAutoplay = () => {
     setautoplay(!autoplay)
   }
+
+  const handlePrevious = () => {
+    console.log("HANDLIN")
+    setCurrentTime(0);
+    setIsPlaying(false);
+    if (context.paragraph === 0) {
+      context.setParagraph(0);
+    }
+    else {
+      context.setParagraph(context.paragraph - 1);
+    }
+  }
+
+  const handleNext = () => {
+    setCurrentTime(0);
+    setIsPlaying(false);
+    context.setParagraph(context.paragraph + 1);
+
+  }
+
 
   const playAudio = async (index2: number) => {
     fetchArticleSound(context.article, index2).then((articleSound) => {
@@ -99,14 +119,14 @@ const AudioPlayer = () => {
         <Grid container spacing={2} direction="row" justifyContent="center" alignItems="flex-end" >
           <Grid justifyContent="center">
 
-            <IconButton >
+            <IconButton onClick={handlePrevious}>
               <SkipPrevious />
             </IconButton>
 
             <IconButton onClick={togglePlayPause}>
-              {isPlaying ? <Pause style={{ color: 'black' }} /> : <PlayArrow style={{ color: 'black' }} />}
+              {isPlaying ? <Pause /> : <PlayArrow />}
             </IconButton>
-            <IconButton >
+            <IconButton onClick={handleNext}>
               <SkipNext />
             </IconButton>
 

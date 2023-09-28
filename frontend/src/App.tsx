@@ -1,14 +1,15 @@
-
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
 import Paper from '@mui/material/Paper';
-import { Card, CardActionArea, Typography } from '@mui/material';
-import { memo, useEffect, useState, useRef, useMemo } from 'react';
+import { useEffect, useState, useRef, useMemo } from 'react';
 import { ArticleData, fetchPage } from './data/articles'
 import Article from './components/Article'
 import AudioPlayer from './components/Player'
 import CircularProgress from '@mui/material/CircularProgress';
 import { Box } from '@mui/system';
 import './style/App.css'
-import { render } from '@testing-library/react';
+
 function App() {
 
   const [articles, setArticles] = useState<ArticleData[]>([])
@@ -16,7 +17,6 @@ function App() {
   const [pageIndex, setPageIndex] = useState(0);
   const [loading, setLoading] = useState(false);
   const [nearBottom, setNearBottom] = useState(false);
-
 
   async function fetchData() {
     if ((nearBottom && !loading) || articles.length === 0) {
@@ -64,8 +64,6 @@ function App() {
         }
       }
     };
-
-
     const listElement = listRef.current;
     if (listElement) {
       listElement.addEventListener("scroll", onScroll);
@@ -85,27 +83,45 @@ function App() {
       />
     ))
   }, [articles])
+
+  const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
+  const theme = useMemo(
+    () =>
+      createTheme({
+        palette: {
+          mode: prefersDarkMode ? 'dark' : 'light',
+        },
+      }),
+    [prefersDarkMode],
+  );
+
   return (
-    <div className="App">
-      <Paper className='header' sx={{ borderBottom: 'none' }} elevation={5}>
-        <h1 >RahvusHääling</h1>
-        <p >Tere tulemast RahvusHäälingusse. Kuula ERR-i uudiseid meie ilusas eesti keeles.
-          Loetud TartuNLP kõnesünteesi mudelite poolt!
-        </p>
-      </Paper>
-      <div style={{ overflow: 'auto', height: '99vh', justifyItems: 'center' }} ref={listRef}>
 
-        {rendered}
+    <ThemeProvider theme={theme}>
+
+      <CssBaseline />
+      <div className="App">
+        <Paper className='header' sx={{ borderBottom: 'none' }} elevation={5}>
+          <h1 >RahvusHääling</h1>
+          <p >Tere tulemast RahvusHäälingusse. Kuula ERR-i uudiseid meie ilusas eesti keeles.
+            Loetud TartuNLP kõnesünteesi mudelite poolt!
+          </p>
+        </Paper>
+        <div style={{ overflow: 'auto', height: '99vh', justifyItems: 'center' }} ref={listRef}>
+
+          {rendered}
 
 
-        {(nearBottom && !allArticlesLoaded) && <Box sx={{ width: '100%', textAlign: 'center' }}><CircularProgress sx={{
+          {(nearBottom && !allArticlesLoaded) && <Box sx={{ width: '100%', textAlign: 'center' }}><CircularProgress sx={{
 
-          color: 'black',
-        }} /></Box>}
-        {allArticlesLoaded && <h1>...</h1>}
+            color: 'black',
+          }} /></Box>}
+          {allArticlesLoaded && <h1>...</h1>}
+        </div>
+        <AudioPlayer />
       </div>
-      <AudioPlayer />
-    </div>
+
+    </ThemeProvider>
   );
 }
 
