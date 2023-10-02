@@ -3,7 +3,7 @@ services:
   frontend:
     image: hendrik127/err_frontend:latest
     build:
-      context: .
+      context: ./api
     ports:
       - "3000:3000"
     command: npm start
@@ -12,7 +12,7 @@ services:
   scraper-api:
     image: hendrik127/err_api:latest
     build:
-      context: .
+      context: ./frontend
       dockerfile: Dockerfile
     command: sh -c "python database.py && uvicorn main:app --host 0.0.0.0 --port 80"
 
