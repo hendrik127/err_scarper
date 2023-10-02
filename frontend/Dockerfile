@@ -1,5 +1,5 @@
 # Use an official Node runtime as a parent image
-FROM node:20-slim
+FROM 20-bullseye-slim
 # Set the working directory to /app
 WORKDIR /frontend
 
