@@ -1,4 +1,4 @@
-name: Docker Image CI
+name: CI Pipeline
 
 on:
   push:
@@ -26,4 +26,5 @@ jobs:
         docker-compose up -d --build
         docker-compose ps
     - name: Push to Dockerhub.
-      run: docker push hendrik127/err_scraper:latest
+      run: docker push hendrik127/err_scraper-frontend:latest
+        docker push hendrik127/err_scraper-api:latest

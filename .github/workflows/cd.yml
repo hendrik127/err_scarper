@@ -1,0 +1,15 @@
+# name: CD Pipeline
+
+# on: 
+#   workflow_run:
+#     workflows: ["CI Pipeline"]
+#     types:
+#       - completed
+
+# jobs:
+#   build:
+#     runs-on: self-hosted
+#     steps:
+#       - name: Pull repository
+#         run: git clone 
+
