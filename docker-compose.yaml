@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   frontend:
-    image: hendrik127/err_scraper-frontend:latest
+    image: hendrik127/err_scraper:frontend
     build:
       context: ./frontend
     ports:
@@ -10,7 +10,7 @@ services:
     depends_on:
       - scraper-api
   scraper-api:
-    image: hendrik127/err_scraper-api:latest
+    image: hendrik127/err_scraper:api
     build:
       context: ./api
       dockerfile: Dockerfile
