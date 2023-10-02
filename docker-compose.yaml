@@ -1,20 +1,20 @@
 version: '3.8'
 services:
   frontend:
-    image: hendrik127/err_frontend:latest
+    # image: hendrik127/err_frontend:latest
     build:
-      context: ./api
+      context: ./frontend
     ports:
       - "3000:3000"
     command: npm start
     depends_on:
       - scraper-api
   scraper-api:
-    image: hendrik127/err_api:latest
+    # image: hendrik127/err_api:latest
     build:
-      context: ./frontend
+      context: ./api
       dockerfile: Dockerfile
-    command: sh -c "python database.py && uvicorn main:app --host 0.0.0.0 --port 80"
+    command: sh -c "python3 database.py && uvicorn main:app --host 0.0.0.0 --port 80"
 
     ports:
       - "80:80"
