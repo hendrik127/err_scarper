@@ -26,4 +26,4 @@ jobs:
         docker-compose up -d --build
         docker-compose ps
     - name: Push to Dockerhub.
-      run: docker push hendrik127/err_scraper 
+      run: docker push hendrik127/err_scraper:latest
