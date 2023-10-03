@@ -22,7 +22,7 @@ jobs:
       run: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
     - name: Build the Docker images.
       run: |
-        docker-compose up -d --build -f docker-compose.prod.yml
+        docker-compose  -f docker-compose.prod.yaml up -d --build
         docker-compose ps
     - name: Push to Dockerhub.
       run: |
