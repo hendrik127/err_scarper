@@ -25,12 +25,15 @@
 # Use a lightweight web server as a base image
 FROM nginx:alpine
 
+WORKDIR /app
 # Remove the default nginx static files
 RUN rm -rf /usr/share/nginx/html/*
 
 # Copy the built files into the container
-COPY build/ /usr/share/nginx/html
 
+COPY --from=build /app/build /usr/share/nginx/html
+
+COPY nginx.conf /etc/nginx/conf.d/
 # Expose the port the app should run on
 EXPOSE 3000
 

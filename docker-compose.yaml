@@ -4,6 +4,7 @@ services:
     image: hendrik127/err_frontend:latest
     build:
       context: ./frontend
+      dockerfile: Dockerfile
     ports:
       - "3000:3000"
     command: npm start
