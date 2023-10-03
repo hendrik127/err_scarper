@@ -15,5 +15,6 @@ jobs:
       - name: cd into repository
         run: cd err_scraper
       - name: Run Docker
-        run: docker compose up -d
+        run: docker compose -f docker-compose.prod.yml up -d
+
 

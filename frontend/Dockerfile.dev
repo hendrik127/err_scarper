@@ -1,0 +1,13 @@
+# Use an official Node runtime as a parent image
+FROM node:20-bullseye-slim as build
+WORKDIR '/app'
+
+COPY package.json ./
+RUN npm install
+
+COPY . ./
+
+EXPOSE 3000
+
+# RUN apk add --update nodejs npm
+#CMD ["nginx", "-g", "daemon off;"]

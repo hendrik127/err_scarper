@@ -1,18 +1,22 @@
 version: '3.8'
 services:
   frontend:
-    # image: hendrik127/err_frontend:latest
+    image: hendrik127/err_frontend:latest
+    environment:
+      NODE_ENV: production
+    command: sh -c "nginx -g 'daemon off;'"
     build:
       context: ./frontend
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
     ports:
-      - "3000:3000"
-    command: npm start
+      - "80:80"
     depends_on:
       - scraper-api
     restart: on-failure:5
   scraper-api:
-    # image: hendrik127/err_api:latest
+    environment:
+      ENVIRONMENT: production
+    image: hendrik127/err_api:latest
     build:
       context: ./api
       dockerfile: Dockerfile
@@ -23,7 +27,6 @@ services:
     environment:
       DATABASE_URL: "postgresql://postgres:password@database:5432/scraperdb"  # Update with your PostgreSQL database URL
       SQLALCHEMY_DATABASE_URI: "postgresql://postgres:password@database:5432/scraperdb"  # Add SQLAlchemy database URI
-
     depends_on:
       - database  # Make sure scraper-api service waits for the database service to be up
     restart: on-failure:5

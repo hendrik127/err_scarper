@@ -5,7 +5,12 @@ import os
 
 
 load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env'))
-DATABASE_URL = os.getenv("DATABASE_URL")
+
+if os.getenv('ENVIRONMENT') == 'production':
+    DATABASE_URL = os.getenv("PROD_DATABASE_URL")
+else:
+    DATABASE_URL = os.getenv("DATABASE_URL")
+
 engine = create_engine(DATABASE_URL, echo=True)
 
 
