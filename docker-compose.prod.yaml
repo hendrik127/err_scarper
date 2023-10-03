@@ -20,10 +20,10 @@ services:
     build:
       context: ./api
       dockerfile: Dockerfile
-    command: sh -c "python3 database.py && uvicorn main:app --host 0.0.0.0 --port 80"
+    command: sh -c "python3 database.py && uvicorn main:app --host 0.0.0.0 --port 3000"
 
     ports:
-      - "80:80"
+      - "3000:3000"
     environment:
       DATABASE_URL: "postgresql://postgres:password@database:5432/scraperdb"  # Update with your PostgreSQL database URL
       SQLALCHEMY_DATABASE_URI: "postgresql://postgres:password@database:5432/scraperdb"  # Add SQLAlchemy database URI
