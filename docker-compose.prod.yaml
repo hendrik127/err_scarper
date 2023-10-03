@@ -14,8 +14,6 @@ services:
       - scraper-api
     restart: on-failure:5
   scraper-api:
-    environment:
-      ENVIRONMENT: production
     image: hendrik127/err_api:latest
     build:
       context: ./api
@@ -25,6 +23,7 @@ services:
     ports:
       - "3000:3000"
     environment:
+      ENVIRONMENT: production
       DATABASE_URL: "postgresql://postgres:password@database:5432/scraperdb"  # Update with your PostgreSQL database URL
       SQLALCHEMY_DATABASE_URI: "postgresql://postgres:password@database:5432/scraperdb"  # Add SQLAlchemy database URI
     depends_on:
