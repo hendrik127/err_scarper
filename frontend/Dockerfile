@@ -1,23 +1,20 @@
 # Use an official Node runtime as a parent image
-FROM node:20-bullseye-slim
-# Set the working directory to /app
-WORKDIR /frontend
+FROM node:20-bullseye-slim as build
+WORKDIR '/app'
 
-# Copy package.json and package-lock.json to the working directory
-COPY package*.json ./
+COPY package.json ./
+RUN npm install
 
-# Install app dependencies
-# RUN npm install
+COPY . ./
+RUN npm run build
 
-# Copy the current directory contents into the container at /app
-COPY build/ .
+# Stage 2: Use NGINX to serve the built files
+FROM nginx
 
-# Make port 3000 available to the world outside this container
-EXPOSE 3000
+COPY --from=build /app/build /usr/share/nginx/html
 
+COPY --from=build /app/nginx.conf /etc/nginx/conf.d/default.conf
+#EXPOSE 3000
 
-# Build the app
-# RUN npm run build
-
-# Command to run the application
-CMD ["npm", "start"]
+# RUN apk add --update nodejs npm
+#CMD ["nginx", "-g", "daemon off;"]

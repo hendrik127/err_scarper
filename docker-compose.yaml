@@ -1,18 +1,20 @@
 version: '3.8'
 services:
   frontend:
-    image: hendrik127/err_frontend:latest
+    # image: hendrik127/err_frontend:latest
+
+    command: sh -c "nginx -g 'daemon off;'"
     build:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
-    command: npm start
+        #    command: npm start
     depends_on:
       - scraper-api
     restart: on-failure:5
   scraper-api:
-    image: hendrik127/err_api:latest
+    # image: hendrik127/err_api:latest
     build:
       context: ./api
       dockerfile: Dockerfile
