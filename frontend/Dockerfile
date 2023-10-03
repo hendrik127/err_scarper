@@ -32,7 +32,7 @@ RUN rm -rf /usr/share/nginx/html/*
 COPY build/ /usr/share/nginx/html
 
 # Expose the port the app should run on
-EXPOSE 80
+EXPOSE 3000
 
 # Command to start the web server
 CMD ["nginx", "-g", "daemon off;"]
