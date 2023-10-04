@@ -10,7 +10,7 @@ import { argv0 } from 'process';
 import { fetchArticleSound } from '../data/sound';
 
 const AudioPlayer = () => {
-  console.log("PLaYETRR")
+  // console.log("PLaYETRR")
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(0.5);
@@ -26,7 +26,7 @@ const AudioPlayer = () => {
   }
 
   const handlePrevious = () => {
-    console.log("HANDLIN")
+    // console.log("HANDLIN")
     setCurrentTime(0);
     setIsPlaying(false);
     if (context.paragraph === 0) {
@@ -47,7 +47,7 @@ const AudioPlayer = () => {
 
   const playAudio = async (index2: number) => {
     fetchArticleSound(context.article, index2).then((articleSound) => {
-      console.log(articleSound);
+      // console.log(articleSound);
       const src = URL.createObjectURL(articleSound);
       setSrc(src)
     })
@@ -82,7 +82,7 @@ const AudioPlayer = () => {
 
   const togglePlayPause = () => {
     const audio = audioRef.current;
-    console.log(audio);
+    // console.log(audio);
     if (audio && audio.src.trim() !== '') {
       if (isPlaying) {
         audio.pause();

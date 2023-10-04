@@ -23,7 +23,7 @@ function App() {
       setLoading(true);
 
       await fetchPage(pageIndex + 1).then((newArticles) => {
-        console.log("FETCHING")
+        // console.log("FETCHING")
         if (newArticles.length === 0) {
           setAllArticlesLoaded(true);
         } else {

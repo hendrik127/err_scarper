@@ -1,13 +1,8 @@
 // MyContext.tsx
-import React, { useEffect, createContext, useContext, useState } from 'react';
-import { fetchArticleSound } from './data/sound';
-// Create a context
-// Define the type for MyProvider props
+import React, { createContext, useContext, useState } from 'react';
 type MyProviderProps = {
   children: React.ReactNode;
 }
-
-
 
 // Define the type for the context value
 type MyContextValue = {
@@ -23,9 +18,6 @@ export const MyContext = createContext<MyContextValue | undefined>(undefined);
 export const MyProvider: React.FC<MyProviderProps> = ({ children }) => {
   const [article, setArticle] = useState(0);
   const [paragraph, setParagraph] = useState(0);
-  console.log("UFUKEDNOW")
-
-
   return (
     <MyContext.Provider value={{
       article, setArticle,

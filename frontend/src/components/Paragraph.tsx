@@ -1,10 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
-import { Box, Button } from '@mui/material';
+import { Box} from '@mui/material';
 import { useMyContext } from '../AudioContext';
-
-import IconButton from '@mui/material/IconButton';
-import PlayArrowIcon from '@mui/icons-material/PlayArrow';
-import PauseIcon from '@mui/icons-material/Pause';
 interface ParagraphProps {
   text: string;
   p_id: number;

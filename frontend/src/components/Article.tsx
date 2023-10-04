@@ -9,12 +9,9 @@ import { fetchParagraphs } from '../data/paragraphs';
 interface ArticleProps {
   id: number;
   title: string;
-  // content: string[];
 }
 
 function Article(props: ArticleProps) {
-
-  // console.log("AA", props.id)
 
   const context = useMyContext();
   const [expanded, setExpanded] = useState(false);
