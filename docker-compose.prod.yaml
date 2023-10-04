@@ -9,7 +9,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - "443:443"
+      - "80:80"
     depends_on:
       - scraper-api
     restart: on-failure:5
