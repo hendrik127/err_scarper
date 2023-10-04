@@ -11,8 +11,10 @@ RUN npm run build
 # Stage 2: Use NGINX to serve the built files
 FROM nginx
 
-COPY --from=build /app/build /usr/share/nginx/html
+COPY /etc/letsencrypt/live/rahvushaaling.ee/fullchain.pem /etc/nginx/ssl/fullchain.pem
 
+COPY /etc/letsencrypt/live/rahvushaaling.ee/privkey.pem /etc/nginx/ssl/privkey.pem
+COPY --from=build /app/build /usr/share/nginx/html
 COPY --from=build /app/nginx.conf /etc/nginx/conf.d/default.conf
 #EXPOSE 3000
 

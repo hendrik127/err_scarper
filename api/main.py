@@ -49,6 +49,7 @@ app = FastAPI()
 origins = [
     "http://localhost:3000",
     "http://ec2-3-9-115-223.eu-west-2.compute.amazonaws.com",
+    "https://rahvushaaling.ee",
     TEXT_TO_SPEECH_URL
 ]
 
