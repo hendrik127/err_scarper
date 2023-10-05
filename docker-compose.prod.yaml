@@ -18,9 +18,9 @@ services:
     build:
       context: ./api
       dockerfile: Dockerfile
-    command: sh -c "python3 database.py && uvicorn main:app --host 0.0.0.0 --port 443"
+    command: sh -c "python3 database.py && uvicorn main:app --host 0.0.0.0 --port 3000"
     ports:
-      - "443:443"
+      - "3000:3000"
     environment:
       ENVIRONMENT: production
       DATABASE_URL: "postgresql://postgres:password@database:5432/scraperdb"  # Update with your PostgreSQL database URL
