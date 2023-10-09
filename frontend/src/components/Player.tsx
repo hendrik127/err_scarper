@@ -1,12 +1,8 @@
-
 import { useMyContext } from '../AudioContext';
 import '../style/App.css'; // Create this CSS file in the same folder
-
-import React, { useEffect, useState, useRef } from 'react';
-import { Paper, Box, Slider, Grid, IconButton, Switch } from '@mui/material';
-import { PlayArrow, Pause, SkipPrevious, SkipNext, VolumeUp, VolumeDown, VolumeMute } from '@mui/icons-material';
-import zIndex from '@mui/material/styles/zIndex';
-import { argv0 } from 'process';
+import { useEffect, useState, useRef } from 'react';
+import { Paper,Slider, Grid, IconButton, Switch } from '@mui/material';
+import { PlayArrow, Pause, SkipPrevious, SkipNext } from '@mui/icons-material';
 import { fetchArticleSound } from '../data/sound';
 
 const AudioPlayer = () => {
@@ -112,7 +108,7 @@ const AudioPlayer = () => {
 
   // justifyContent="space-evenly"
   return (
-    <Paper sx={{ padding: "2vw", position: "fixed", width: "90vw", bottom: "2vw", marginLeft: "3vw", marginRight: "3vw", border: "solid 2px grey" }} className="audio-player">
+    <Paper sx={{ padding: "2vw", position: "fixed", width: "100vw", bottom: "0" }} className="audio-player">
       <audio autoPlay={autoplay} ref={audioRef} src={src}></audio>
       <Grid container >
 
