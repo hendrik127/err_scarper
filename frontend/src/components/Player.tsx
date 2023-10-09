@@ -61,7 +61,7 @@ const AudioPlayer = () => {
     
   }
   const getNext = async (index: number) => {
-    console.log("GETTIN NEXXT")
+    // console.log("GETTIN NEXXT")
     fetchArticleSound(context.article, index).then((articleSound) => {
       const src = URL.createObjectURL(articleSound);  
       const a = srcArray;
@@ -75,7 +75,7 @@ const AudioPlayer = () => {
 
 useEffect(()=>{
     if(context.paragraphsLen){
-      console.log("HAV LEN")
+      // console.log("HAV LEN")
     setSrcArray( Array.from({ length: context.paragraphsLen }, () => ""));}
   },[context.paragraphsLen, context.article])
 

@@ -22,7 +22,7 @@ export const MyProvider: React.FC<MyProviderProps> = ({ children }) => {
   const [paragraph, setParagraph] = useState<number|undefined>(undefined);
   const [paragraphsLen, setParagraphsLen] = useState<number>(0);
 
-  console.log(paragraphsLen)
+  // console.log(paragraphsLen)
   return (
     <MyContext.Provider value={{
       article, setArticle,

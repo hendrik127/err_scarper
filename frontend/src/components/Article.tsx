@@ -19,7 +19,7 @@ function Article(props: ArticleProps) {
   const handleExpandClick = async () => {
     setExpanded(!expanded);
     if (!expanded) {
-      console.log("Setting article,", props.id)
+      // console.log("Setting article,", props.id)
           }
 
   };
