@@ -20,9 +20,7 @@ function Article(props: ArticleProps) {
     setExpanded(!expanded);
     if (!expanded) {
       console.log("Setting article,", props.id)
-      context.setArticle(props.id)
-      context.setParagraph(0)
-    }
+          }
 
   };
 
@@ -31,9 +29,15 @@ function Article(props: ArticleProps) {
       fetchParagraphs(props.id).then(
         data => {
           setParagraphs(data)
+          context.setParagraphsLen(data.length)
+          context.setArticle(props.id)
+          context.setParagraph(0)
+
         }
       )
+
     }
+
   },[expanded])
 
 

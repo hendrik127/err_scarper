@@ -8,8 +8,10 @@ type MyProviderProps = {
 type MyContextValue = {
   article: number
   setArticle: (arg: number) => void
-  paragraph: number
+  paragraph: number|undefined
   setParagraph: (arg: number) => void
+  paragraphsLen: number
+  setParagraphsLen: (arg: number) => void
 };
 
 
@@ -17,11 +19,14 @@ export const MyContext = createContext<MyContextValue | undefined>(undefined);
 // Create a provider component
 export const MyProvider: React.FC<MyProviderProps> = ({ children }) => {
   const [article, setArticle] = useState(0);
-  const [paragraph, setParagraph] = useState(0);
+  const [paragraph, setParagraph] = useState<number|undefined>(undefined);
+  const [paragraphsLen, setParagraphsLen] = useState<number>(0);
+
+  console.log(paragraphsLen)
   return (
     <MyContext.Provider value={{
       article, setArticle,
-      paragraph, setParagraph
+      paragraph, setParagraph, paragraphsLen, setParagraphsLen
     }}>
       {children}
     </MyContext.Provider>

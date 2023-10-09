@@ -15,7 +15,7 @@ const AudioPlayer = () => {
   const context = useMyContext()
   const [currentTime, setCurrentTime] = useState(0);
   const [src, setSrc] = useState("");
-
+  const [srcArray, setSrcArray] = useState<string[]>([]);
 
   const handleAutoplay = () => {
     setautoplay(!autoplay)
@@ -29,30 +29,62 @@ const AudioPlayer = () => {
       context.setParagraph(0);
     }
     else {
-      context.setParagraph(context.paragraph - 1);
+      if(context.paragraph!==undefined)
+        context.setParagraph(context.paragraph - 1);
     }
   }
 
   const handleNext = () => {
     setCurrentTime(0);
     setIsPlaying(false);
-    context.setParagraph(context.paragraph + 1);
+    if(context.paragraph !== undefined)
+      context.setParagraph(context.paragraph + 1);
 
   }
 
 
   const playAudio = async (index2: number) => {
-    fetchArticleSound(context.article, index2).then((articleSound) => {
-      // console.log(articleSound);
+    if(index2>=0 && index2< srcArray.length && !srcArray[index2]){
+      fetchArticleSound(context.article, index2).then((articleSound) => {
       const src = URL.createObjectURL(articleSound);
       setSrc(src)
+      const a = srcArray;
+      a[index2] = src
+      setSrcArray(a);
     })
+
+    }else if(index2>=0 && index2< srcArray.length ){
+      setSrc(srcArray[index2]);
+    }
+      if(index2+1>0 && index2+1 < srcArray.length && !srcArray[index2+1])
+      await getNext(index2+1);
+    
   }
+  const getNext = async (index: number) => {
+    console.log("GETTIN NEXXT")
+    fetchArticleSound(context.article, index).then((articleSound) => {
+      const src = URL.createObjectURL(articleSound);  
+      const a = srcArray;
+      a[index] = src
+      setSrcArray(a);
+
+
+    })
+          
+}
+
+useEffect(()=>{
+    if(context.paragraphsLen){
+      console.log("HAV LEN")
+    setSrcArray( Array.from({ length: context.paragraphsLen }, () => ""));}
+  },[context.paragraphsLen, context.article])
+
 
   useEffect(() => {
-    playAudio(context.paragraph)
-  }, [context])
-
+    if(context.paragraph!==undefined && srcArray) {
+      playAudio(context.paragraph)
+    }
+  }, [srcArray, context])
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -71,6 +103,7 @@ const AudioPlayer = () => {
 
       audio.addEventListener('ended', () => {
         setIsPlaying(false);
+        if(context.paragraph!==undefined)
         context.setParagraph(context.paragraph + 1)
       });
     }
