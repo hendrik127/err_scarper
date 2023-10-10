@@ -6,7 +6,6 @@ import { PlayArrow, Pause, SkipPrevious, SkipNext } from '@mui/icons-material';
 import { fetchArticleSound } from '../data/sound';
 
 const AudioPlayer = () => {
-  // console.log("PLaYETRR")
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(0.5);
@@ -16,15 +15,14 @@ const AudioPlayer = () => {
   const [currentTime, setCurrentTime] = useState(0);
   const [src, setSrc] = useState("");
   const [srcArray, setSrcArray] = useState<string[]>([]);
-
   const handleAutoplay = () => {
     setautoplay(!autoplay)
   }
 
   const handlePrevious = () => {
-    // console.log("HANDLIN")
     setCurrentTime(0);
-    setIsPlaying(false);
+
+    togglePause();
     if (context.paragraph === 0) {
       context.setParagraph(0);
     }
@@ -36,15 +34,15 @@ const AudioPlayer = () => {
 
   const handleNext = () => {
     setCurrentTime(0);
-    setIsPlaying(false);
+    if(!autoplay){
+
+    togglePause();
+    }
     if(context.paragraph !== undefined)
       context.setParagraph(context.paragraph + 1);
-
   }
 
-
   const playAudio = async (index2: number) => {
-    // console.log(srcArray)
     if(index2>=0 && index2< srcArray.length && !srcArray[index2]){
       fetchArticleSound(context.article, index2).then((articleSound) => {
       const src = URL.createObjectURL(articleSound);
@@ -53,71 +51,82 @@ const AudioPlayer = () => {
       a[index2] = src
       setSrcArray(a);
     })
-
     }else if(index2>=0 && index2< srcArray.length ){
       setSrc(srcArray[index2]);
     }
-      if(index2+1>0 && index2+1 < srcArray.length && !srcArray[index2+1])
-      await getNext(index2+1);
-    
   }
   const getNext = async (index: number) => {
-    // console.log("GETTIN NEXXT")
-    fetchArticleSound(context.article, index).then((articleSound) => {
+    if(''===srcArray[index] && index>=0 && index < srcArray.length){
+fetchArticleSound(context.article, index).then((articleSound) => {
       const src = URL.createObjectURL(articleSound);  
       const a = srcArray;
       a[index] = src
       setSrcArray(a);
-
-
     })
-          
+
+    }
+              
 }
 
 useEffect(()=>{
     if(context.paragraphsLen){
-
-    setIsPlaying(false);
-    togglePlayPause();
     setSrc("");
-    setCurrentTime(0);
-      // console.log("HAV LEN")
     setSrcArray( Array.from({ length: context.paragraphsLen }, () => ""));}
   },[context.paragraphsLen, context.article])
 
 
   useEffect(() => {
     if(context.paragraph!==undefined && srcArray) {
-setIsPlaying(false);
-    togglePlayPause();
-    setSrc("");
-    setCurrentTime(0);
+
+      
+
       playAudio(context.paragraph)
     }
-  }, [srcArray, context])
+  }, [ context, srcArray])
 
   useEffect(() => {
     const audio = audioRef.current;
+
+    
     if (audio) {
-      audio.addEventListener('loadedmetadata', () => {
+
+const handleLoadedMetadata = () => {
         setTrackLength(audio.duration);
-      });
-      audio.addEventListener('timeupdate', () => {
-        setCurrentTime(audio.currentTime);
-      });
-
-      audio.addEventListener('play', () => {
-        setIsPlaying(true)
-      })
-
-
-      audio.addEventListener('ended', () => {
-        setIsPlaying(false);
-        if(context.paragraph!==undefined)
-        context.setParagraph(context.paragraph + 1)
-      });
     }
-  }, [context]);
+const handleTimeUpdate = () => {
+
+        setCurrentTime(audio.currentTime);
+      }
+const handlePlay = () => {
+      if(context.paragraph!==undefined){
+
+      getNext(context.paragraph+1);
+        
+      }
+
+    }
+      const handleEnded = () => {
+        
+        if(autoplay){
+          handleNext()
+        }
+      }
+      audio.addEventListener('loadedmetadata', handleLoadedMetadata);
+      audio.addEventListener('timeupdate', handleTimeUpdate);
+      audio.addEventListener('play', handlePlay);
+
+      audio.addEventListener('ended', handleEnded);
+
+return () => {
+    const audio = audioRef.current;
+    if (audio) {
+      audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      audio.removeEventListener('timeupdate', handleTimeUpdate);
+      audio.removeEventListener('play', handlePlay);
+    }
+  };
+
+      }}, [context, srcArray, autoplay]);
   
 const isTouchScreenDevice = () => {
     try{
@@ -127,18 +136,28 @@ const isTouchScreenDevice = () => {
         return false;
     }
 }
-  const togglePlayPause = () => {
+
+
+  const togglePlay = () => {
+
     const audio = audioRef.current;
-    // console.log(audio);
-    if (audio && src !== '') {
-      if (isPlaying) {
-        audio.pause();
-      } else {
+      if (audio && src !== '') {
         audio.play();
-      }
-      setIsPlaying(!isPlaying);
+      setIsPlaying(true);
     }
-  };
+  }
+
+ const togglePause = () => {
+
+    const audio = audioRef.current;
+     if (audio && src !== '') {
+        audio.pause();
+      setIsPlaying(false);
+    }
+
+        
+  }
+    
 
   const handleVolumeChange = (event: Event, newValue: number | number[]) => {
     if (typeof newValue === 'number') {
@@ -157,7 +176,6 @@ const isTouchScreenDevice = () => {
     }
   };
 
-  // justifyContent="space-evenly"
   return (
     <Paper sx={{ padding: "2vw", position: "fixed", width: "100vw", bottom: "0" }} className="audio-player">
       <audio autoPlay={autoplay} ref={audioRef} src={src}></audio>
@@ -170,7 +188,7 @@ const isTouchScreenDevice = () => {
               <SkipPrevious />
             </IconButton>
 
-            <IconButton onClick={togglePlayPause}>
+            <IconButton onClick={isPlaying ? togglePause : togglePlay}>
               {isPlaying ? <Pause /> : <PlayArrow />}
             </IconButton>
             <IconButton onClick={handleNext}>
