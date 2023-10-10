@@ -44,6 +44,7 @@ const AudioPlayer = () => {
 
 
   const playAudio = async (index2: number) => {
+    // console.log(srcArray)
     if(index2>=0 && index2< srcArray.length && !srcArray[index2]){
       fetchArticleSound(context.article, index2).then((articleSound) => {
       const src = URL.createObjectURL(articleSound);
@@ -75,6 +76,11 @@ const AudioPlayer = () => {
 
 useEffect(()=>{
     if(context.paragraphsLen){
+
+    setIsPlaying(false);
+    togglePlayPause();
+    setSrc("");
+    setCurrentTime(0);
       // console.log("HAV LEN")
     setSrcArray( Array.from({ length: context.paragraphsLen }, () => ""));}
   },[context.paragraphsLen, context.article])
@@ -82,6 +88,10 @@ useEffect(()=>{
 
   useEffect(() => {
     if(context.paragraph!==undefined && srcArray) {
+setIsPlaying(false);
+    togglePlayPause();
+    setSrc("");
+    setCurrentTime(0);
       playAudio(context.paragraph)
     }
   }, [srcArray, context])
@@ -108,11 +118,19 @@ useEffect(()=>{
       });
     }
   }, [context]);
-
+  
+const isTouchScreenDevice = () => {
+    try{
+        document.createEvent('TouchEvent');
+        return true;
+    }catch(e){
+        return false;
+    }
+}
   const togglePlayPause = () => {
     const audio = audioRef.current;
     // console.log(audio);
-    if (audio && audio.src.trim() !== '') {
+    if (audio && src !== '') {
       if (isPlaying) {
         audio.pause();
       } else {
@@ -171,7 +189,7 @@ useEffect(()=>{
 
         <Grid container spacing={2} direction="row" justifyContent="flex-start" alignItems="center" >
 
-          <Grid item xs={9}>
+          <Grid item xs={isTouchScreenDevice() ? 10 : 8}>
 
             <Slider
               size="small"
@@ -186,21 +204,21 @@ useEffect(()=>{
 
           <Grid xs={1} sx={{ fontSize: "10px" }} item>
 
-            {`${Math.floor(currentTime / 60)}:${(currentTime % 60).toFixed(0).padStart(2, '0')} / ${Math.floor(
+            {src&&`${Math.floor(currentTime / 60)}:${(currentTime % 60).toFixed(0).padStart(2, '0')} / ${Math.floor(
               trackLength / 60
             )}:${(trackLength % 60).toFixed(0).padStart(2, '0')}`}
 
           </Grid>
 
           <Grid item xs={2}>
-            <Slider
+           { !isTouchScreenDevice() && <Slider
               value={volume}
               min={0}
               max={1}
               step={0.01}
               onChange={handleVolumeChange}
               aria-labelledby="continuous-slider"
-            />
+            />}
 
           </Grid>
         </Grid>

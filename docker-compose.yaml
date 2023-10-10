@@ -1,16 +1,16 @@
 version: '3.8'
 services:
-  frontend:
+  #  frontend:
     # image: hendrik127/err_frontend:latest
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile.dev
-    ports:
-      - "3000:3000"
-    command: npm start
-    depends_on:
-      - scraper-api
-    restart: on-failure:5
+    #    build:
+    # context: ./frontend
+    # dockerfile: Dockerfile.dev
+    #ports:
+    # - "3000:3000"
+    #command: npm start
+    #depends_on:
+    #  - scraper-api
+    #restart: on-failure:5
   scraper-api:
     # image: hendrik127/err_api:latest
     build:
