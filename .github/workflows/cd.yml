@@ -10,10 +10,12 @@ jobs:
   build:
     runs-on: self-hosted
     steps:
-      - name: Pull repository
-        run: git pull git@github.com:hendrik127/err_text_to_speech.git
+      - name: Clone Repository
+        run: git clone git@github.com:hendrik127/err_text_to_speech.git 
       - name: cd into repository
         run: cd err_text_to_speech
+      - name: Pull repository
+        run: git pull
       - name: Stop current
         run: sudo docker stop $(sudo docker ps -aq) 
       - name: Remove containers
