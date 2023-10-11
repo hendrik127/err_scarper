@@ -1,7 +1,7 @@
 import { useMyContext } from '../AudioContext';
 import '../style/App.css'; // Create this CSS file in the same folder
 import { useEffect, useState, useRef } from 'react';
-import { Paper,Slider, Grid, IconButton, Switch } from '@mui/material';
+import { Paper,Slider, Grid, IconButton, Switch, autocompleteClasses } from '@mui/material';
 import { PlayArrow, Pause, SkipPrevious, SkipNext } from '@mui/icons-material';
 import { fetchArticleSound } from '../data/sound';
 
@@ -21,8 +21,10 @@ const AudioPlayer = () => {
 
   const handlePrevious = () => {
     setCurrentTime(0);
+    if(!autoplay){
 
-    togglePause();
+      togglePause();
+    }
     if (context.paragraph === 0) {
       context.setParagraph(0);
     }
@@ -38,11 +40,17 @@ const AudioPlayer = () => {
 
     togglePause();
     }
-    if(context.paragraph !== undefined)
+    if(context.paragraph !== undefined )
       context.setParagraph(context.paragraph + 1);
   }
 
   const playAudio = async (index2: number) => {
+    
+// console.log(srcArray)
+    if(!autoplay){
+
+    togglePause();
+    }
     if(index2>=0 && index2< srcArray.length && !srcArray[index2]){
       fetchArticleSound(context.article, index2).then((articleSound) => {
       const src = URL.createObjectURL(articleSound);
@@ -70,20 +78,42 @@ const AudioPlayer = () => {
 
 useEffect(()=>{
     if(context.paragraphsLen){
-    setSrc("");
+      setSrc("");
     setSrcArray( Array.from({ length: context.paragraphsLen }, () => ""));}
-    if(!autoplay){togglePause()}
-  },[context.paragraphsLen, context.article,autoplay])
+  },[context.paragraphsLen, context.article])
 
 
   useEffect(() => {
     if(context.paragraph!==undefined && srcArray) {
 
-      
+     // console.log("PALING", context.paragraph) 
 
       playAudio(context.paragraph)
     }
-  }, [ context, srcArray])
+  }, [ context, srcArray, autoplay])
+
+
+const togglePlay = () => {
+
+    const audio = audioRef.current;
+      if (audio && src !== '') {
+        audio.play();
+    }
+    
+      setIsPlaying(true);
+  }
+
+ const togglePause = () => {
+
+    const audio = audioRef.current;
+     if (audio) {
+        audio.pause();
+    }
+
+      setIsPlaying(false);
+
+        
+  }
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -109,11 +139,11 @@ const handlePlay = () => {
     }
       const handleEnded = () => {
         
-        if(autoplay){
           handleNext()
-        }
-        if(context.paragraph===srcArray.length-1){
+        if(context.paragraph===srcArray.length-1 || !autoplay){
+          // console.log("AAAGHH")
           togglePause();
+          setSrc("");
         }
       }
       audio.addEventListener('loadedmetadata', handleLoadedMetadata);
@@ -143,26 +173,7 @@ const isTouchScreenDevice = () => {
 }
 
 
-  const togglePlay = () => {
-
-    const audio = audioRef.current;
-      if (audio && src !== '') {
-        audio.play();
-      setIsPlaying(true);
-    }
-  }
-
- const togglePause = () => {
-
-    const audio = audioRef.current;
-     if (audio) {
-        audio.pause();
-      setIsPlaying(false);
-    }
-
-        
-  }
-    
+      
 
   const handleVolumeChange = (event: Event, newValue: number | number[]) => {
     if (typeof newValue === 'number') {
