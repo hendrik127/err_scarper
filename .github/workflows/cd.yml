@@ -13,7 +13,9 @@ jobs:
       - name: Clone Repository
         run: git clone git@github.com:hendrik127/err_text_to_speech.git 
       - name: cd into repository
-        run: cd err_text_to_speech/err_text_to_speech/
+        run: cd err_text_to_speech/
+      - name: Display current directory
+        run: pwd  # Print the current working directory for verification
       - name: Pull repository
         run: git pull
       - name: Stop current
