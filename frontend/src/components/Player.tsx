@@ -15,6 +15,9 @@ const AudioPlayer = () => {
   const [currentTime, setCurrentTime] = useState(0);
   const [src, setSrc] = useState("");
   const [srcArray, setSrcArray] = useState<string[]>([]);
+ 
+
+
   const handleAutoplay = () => {
     setautoplay(!autoplay)
   }
@@ -201,7 +204,7 @@ const isTouchScreenDevice = () => {
           <Grid justifyContent="center">
 
             <IconButton onClick={handlePrevious}>
-              <SkipPrevious />
+              <SkipPrevious  />
             </IconButton>
 
             <IconButton onClick={isPlaying ? togglePause : togglePlay}>

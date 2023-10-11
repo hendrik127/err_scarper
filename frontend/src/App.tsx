@@ -51,11 +51,8 @@ function App() {
         const isNearBottom = scrollTop + clientHeight >= (0.8 + (0.01 * pageIndex)) * scrollHeight
         if (isNearBottom) {
           setNearBottom(true)
-          // console.log("NEAR")
           if (!allArticlesLoaded && !loading) {
-            // console.log("UF2")
             await fetchData();
-
           }
         } else {
           if (!allArticlesLoaded) {
@@ -79,7 +76,6 @@ function App() {
         key={article.id}
         id={article.id}
         title={String(article.id) + ". " + article.title}
-        // content={article.content}
       />
     ))
   }, [articles])
@@ -101,7 +97,7 @@ function App() {
 
       <CssBaseline />
       <div className="App">
-        <Paper className='header' sx={{ borderBottom: 'none' }} elevation={5}>
+        <Paper className='header' sx={{ padding:'1rem', borderBottom: 'none' }} elevation={5}>
           <h1 >RahvusHääling</h1>
           <p >Tere tulemast RahvusHäälingusse. Kuula ERR-i uudiseid meie ilusas eesti keeles.
             Loetud TartuNLP kõnesünteesi mudelite poolt!
