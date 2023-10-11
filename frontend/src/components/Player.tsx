@@ -57,7 +57,7 @@ const AudioPlayer = () => {
   }
   const getNext = async (index: number) => {
     if(''===srcArray[index] && index>=0 && index < srcArray.length){
-fetchArticleSound(context.article, index).then((articleSound) => {
+      fetchArticleSound(context.article, index).then((articleSound) => {
       const src = URL.createObjectURL(articleSound);  
       const a = srcArray;
       a[index] = src
@@ -72,7 +72,8 @@ useEffect(()=>{
     if(context.paragraphsLen){
     setSrc("");
     setSrcArray( Array.from({ length: context.paragraphsLen }, () => ""));}
-  },[context.paragraphsLen, context.article])
+    if(!autoplay){togglePause()}
+  },[context.paragraphsLen, context.article,autoplay])
 
 
   useEffect(() => {
@@ -98,6 +99,7 @@ const handleTimeUpdate = () => {
         setCurrentTime(audio.currentTime);
       }
 const handlePlay = () => {
+        togglePlay()
       if(context.paragraph!==undefined){
 
       getNext(context.paragraph+1);
@@ -109,6 +111,9 @@ const handlePlay = () => {
         
         if(autoplay){
           handleNext()
+        }
+        if(context.paragraph===srcArray.length-1){
+          togglePause();
         }
       }
       audio.addEventListener('loadedmetadata', handleLoadedMetadata);
@@ -150,7 +155,7 @@ const isTouchScreenDevice = () => {
  const togglePause = () => {
 
     const audio = audioRef.current;
-     if (audio && src !== '') {
+     if (audio) {
         audio.pause();
       setIsPlaying(false);
     }
