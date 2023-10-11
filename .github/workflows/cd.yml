@@ -14,6 +14,12 @@ jobs:
         run: git clone git@github.com:hendrik127/err_text_to_speech.git
       - name: cd into repository
         run: cd err_text_to_speech
+      - name: Stop current
+        run: sudo docker stop $(sudo docker ps -aq) 
+      - name: Remove containers
+        run: sudo docker rm $(sudo docker ps -aq) 
+      - name: Remove images
+        run: sudo docker rmi $(sudo docker images -q)
       - name: Run Docker
         run: docker compose -f docker-compose.prod.yaml up -d
 
