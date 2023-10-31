@@ -40,27 +40,23 @@ const AudioPlayer = () => {
     if (context.paragraph !== undefined) context.setParagraph(context.paragraph + 1);
   };
 
-  const playAudio = async (index2: number) => {
-    if (index2 >= 0 && index2 < srcArray.length && !srcArray[index2]) {
-      fetchArticleSound(context.article, index2).then((articleSound) => {
+  const playAudio = async (index2: number, signal: AbortSignal) => {
+    try {
+      if (index2 >= 0 && index2 < srcArray.length && !srcArray[index2]) {
+        const articleSound = await fetchArticleSound(context.article, index2, signal);
         const src = URL.createObjectURL(articleSound);
         setSrc(src);
-        const a = srcArray;
-        a[index2] = src;
-        setSrcArray(a);
-      });
-    } else if (index2 >= 0 && index2 < srcArray.length) {
-      setSrc(srcArray[index2]);
-    }
-  };
-  const getNext = async (index: number) => {
-    if ('' === srcArray[index] && index >= 0 && index < srcArray.length) {
-      fetchArticleSound(context.article, index).then((articleSound) => {
-        const src = URL.createObjectURL(articleSound);
-        const a = srcArray;
-        a[index] = src;
-        setSrcArray(a);
-      });
+        setSrcArray((prevSrcArray) => {
+          const newArray = [...prevSrcArray];
+          newArray[index2] = src;
+          return newArray;
+        });
+      } else if (index2 >= 0 && index2 < srcArray.length) {
+        setSrc(srcArray[index2]);
+      }
+    } catch (error) {
+      // Handle errors here if needed
+      console.error('Error:', error);
     }
   };
 
@@ -72,9 +68,17 @@ const AudioPlayer = () => {
   }, [context.paragraphsLen, context.article]);
 
   useEffect(() => {
+    const controller = new AbortController();
+    const signal = controller.signal;
+
     if (context.paragraph !== undefined && srcArray) {
-      playAudio(context.paragraph);
+      playAudio(context.paragraph, signal).catch((error) => {
+        // Handle errors here if needed
+        console.error('Error in then block:', error);
+      });
     }
+
+    return () => controller.abort();
   }, [context, srcArray, autoplay]);
 
   const togglePlay = () => {
@@ -107,9 +111,6 @@ const AudioPlayer = () => {
       };
       const handlePlay = () => {
         togglePlay();
-        if (context.paragraph !== undefined) {
-          getNext(context.paragraph + 1);
-        }
       };
       const handleEnded = () => {
         handleNext();

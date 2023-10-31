@@ -13,7 +13,9 @@ function Paragraph(props: ParagraphProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const handleButtonClick = async () => {
     ref.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    context.setArticle(props.article);
+    if (context.article !== props.article) {
+      context.setArticle(props.article);
+    }
     context.setParagraph(props.p_id);
   };
 
