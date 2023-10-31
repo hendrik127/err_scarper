@@ -7,7 +7,7 @@ import os
 load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env'))
 
 if os.getenv('ENVIRONMENT') == 'production':
-   DATABASE_URL = os.getenv("DATABASE_URL")
+    DATABASE_URL = os.getenv("DATABASE_URL")
 else:
     DATABASE_URL = os.getenv("DATABASE_URL")
 

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Box} from '@mui/material';
+import { Box } from '@mui/material';
 import { useMyContext } from '../AudioContext';
 interface ParagraphProps {
   text: string;

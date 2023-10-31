@@ -1,7 +1,7 @@
 import Collapse from '@mui/material/Collapse';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import CardContent from '@mui/material/CardContent';
-import {Card, CardActionArea, Typography } from '@mui/material';
+import { Card, CardActionArea, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 import Paragraph from './Paragraph';
 import { useMyContext } from '../AudioContext';
@@ -18,27 +18,20 @@ function Article(props: ArticleProps) {
   const [paragraphs, setParagraphs] = useState<string[]>([])
   const handleExpandClick = async () => {
     setExpanded(!expanded);
-    if (!expanded) {
-      // console.log("Setting article,", props.id)
-          }
-
   };
 
-  useEffect(()=>{
-    if(expanded && paragraphs.length===0){
+  useEffect(() => {
+    if (expanded && paragraphs.length === 0) {
       fetchParagraphs(props.id).then(
         data => {
           setParagraphs(data)
           context.setParagraphsLen(data.length)
           context.setArticle(props.id)
           context.setParagraph(0)
-
         }
       )
-
     }
-
-  },[expanded])
+  }, [expanded])
 
 
 
@@ -58,12 +51,9 @@ function Article(props: ArticleProps) {
   );
 
   return (
-
     <Card variant="outlined">
-
       <CardActionArea onClick={handleExpandClick}>
         {content}
-
       </CardActionArea>
       <Collapse in={expanded}>
         <CardContent >
@@ -73,7 +63,6 @@ function Article(props: ArticleProps) {
               key={`${props.id}-${inx}`}
               text={paragraph} p_id={inx}
             />)
-
           }
         </CardContent>
       </Collapse>

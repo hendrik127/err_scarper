@@ -14,6 +14,7 @@ from pydantic import BaseModel
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 
+
 class TextToSpeech(BaseModel):
     text: str
     speaker: str
@@ -29,7 +30,6 @@ def scrape(all: bool) -> List[Article]:
     with Session(engine) as session:
         articles = select(Article)
         old_count = len(session.exec(articles).all())
-
 
     data = scrape_data(all)
     result = parse_obj_as(List[Article], data)
@@ -48,11 +48,11 @@ app = FastAPI()
 
 origins = [
     "http://localhost:3000",
-  #  "http://localhost",
-   # "http://ec2-3-9-115-223.eu-west-2.compute.amazonaws.com",
+    #  "http://localhost",
+    # "http://ec2-3-9-115-223.eu-west-2.compute.amazonaws.com",
     "https://rahvushaaling.ee",
     "*",
- #   TEXT_TO_SPEECH_URL
+    #   TEXT_TO_SPEECH_URL
 ]
 
 app.add_middleware(
@@ -87,19 +87,20 @@ async def root() -> List[Article]:
 
 @app.get("/titles/")
 async def titles_by_page(page: int = 1, page_size: int = 20) -> JSONResponse:
-    #Returns titles of articles by page size. 
+    # Returns titles of articles by page size.
     start = (page - 1) * page_size
     end = start + page_size
 
     with Session(engine) as session:
         result = session.exec(select(Article.id, Article.title).where(
-                Article.id > start, Article.id <= end)).all()
+            Article.id > start, Article.id <= end)).all()
         json_compatible = jsonable_encoder(result)
         return JSONResponse(status_code=200, content=json_compatible)
 
+
 @app.get("/paragraphs/")
 async def paragraphs(id: int) -> List[str]:
-    #returns the paragraphs of an article by id.
+    # returns the paragraphs of an article by id.
     with Session(engine) as session:
         result = session.exec(select(Article.content).where(
             Article.id == id)).first()

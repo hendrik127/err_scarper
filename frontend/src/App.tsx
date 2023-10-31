@@ -23,7 +23,6 @@ function App() {
       setLoading(true);
 
       await fetchPage(pageIndex + 1).then((newArticles) => {
-        // console.log("FETCHING")
         if (newArticles.length === 0) {
           setAllArticlesLoaded(true);
         } else {
@@ -97,7 +96,7 @@ function App() {
 
       <CssBaseline />
       <div className="App">
-        <Paper className='header' sx={{ padding:'1rem', borderBottom: 'none' }} elevation={5}>
+        <Paper className='header' sx={{ padding: '1rem', borderBottom: 'none' }} elevation={5}>
           <h1 >RahvusHääling</h1>
           <p >Tere tulemast RahvusHäälingusse. Kuula ERR-i uudiseid meie ilusas eesti keeles.
             Loetud TartuNLP kõnesünteesi mudelite poolt!

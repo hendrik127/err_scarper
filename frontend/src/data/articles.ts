@@ -7,8 +7,6 @@ export interface ArticleData {
 export async function fetchPage(page = 1, pageSize = 20): Promise<ArticleData[]> {
   const response = await fetch(`${apiUrl}/titles/?page=${page}&page_size=${pageSize}`);
   const data = await response.json();
-  // console.log(data[1].id)
-
   return data;
 }
 

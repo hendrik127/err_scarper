@@ -1,7 +1,7 @@
 import { useMyContext } from '../AudioContext';
 import '../style/App.css'; // Create this CSS file in the same folder
 import { useEffect, useState, useRef } from 'react';
-import { Paper,Slider, Grid, IconButton, Switch, autocompleteClasses } from '@mui/material';
+import { Paper, Slider, Grid, IconButton, Switch, autocompleteClasses } from '@mui/material';
 import { PlayArrow, Pause, SkipPrevious, SkipNext } from '@mui/icons-material';
 import { fetchArticleSound } from '../data/sound';
 
@@ -15,7 +15,7 @@ const AudioPlayer = () => {
   const [currentTime, setCurrentTime] = useState(0);
   const [src, setSrc] = useState("");
   const [srcArray, setSrcArray] = useState<string[]>([]);
- 
+
 
 
   const handleAutoplay = () => {
@@ -24,7 +24,7 @@ const AudioPlayer = () => {
 
   const handlePrevious = () => {
     setCurrentTime(0);
-    if(!autoplay){
+    if (!autoplay) {
 
       togglePause();
     }
@@ -32,118 +32,112 @@ const AudioPlayer = () => {
       context.setParagraph(0);
     }
     else {
-      if(context.paragraph!==undefined)
+      if (context.paragraph !== undefined)
         context.setParagraph(context.paragraph - 1);
     }
   }
 
   const handleNext = () => {
     setCurrentTime(0);
-    if(!autoplay){
+    if (!autoplay) {
 
-    togglePause();
+      togglePause();
     }
-    if(context.paragraph !== undefined )
+    if (context.paragraph !== undefined)
       context.setParagraph(context.paragraph + 1);
   }
 
   const playAudio = async (index2: number) => {
-    
-// console.log(srcArray)
-    if(!autoplay){
 
-    togglePause();
-    }
-    if(index2>=0 && index2< srcArray.length && !srcArray[index2]){
+
+    if (index2 >= 0 && index2 < srcArray.length && !srcArray[index2]) {
       fetchArticleSound(context.article, index2).then((articleSound) => {
-      const src = URL.createObjectURL(articleSound);
-      setSrc(src)
-      const a = srcArray;
-      a[index2] = src
-      setSrcArray(a);
-    })
-    }else if(index2>=0 && index2< srcArray.length ){
+        const src = URL.createObjectURL(articleSound);
+        setSrc(src)
+        const a = srcArray;
+        a[index2] = src
+        setSrcArray(a);
+      })
+    } else if (index2 >= 0 && index2 < srcArray.length) {
       setSrc(srcArray[index2]);
     }
   }
   const getNext = async (index: number) => {
-    if(''===srcArray[index] && index>=0 && index < srcArray.length){
+    if ('' === srcArray[index] && index >= 0 && index < srcArray.length) {
       fetchArticleSound(context.article, index).then((articleSound) => {
-      const src = URL.createObjectURL(articleSound);  
-      const a = srcArray;
-      a[index] = src
-      setSrcArray(a);
-    })
+        const src = URL.createObjectURL(articleSound);
+        const a = srcArray;
+        a[index] = src
+        setSrcArray(a);
+      })
 
     }
-              
-}
 
-useEffect(()=>{
-    if(context.paragraphsLen){
+  }
+
+  useEffect(() => {
+    if (context.paragraphsLen) {
       setSrc("");
-    setSrcArray( Array.from({ length: context.paragraphsLen }, () => ""));}
-  },[context.paragraphsLen, context.article])
+      setSrcArray(Array.from({ length: context.paragraphsLen }, () => ""));
+    }
+  }, [context.paragraphsLen, context.article])
 
 
   useEffect(() => {
-    if(context.paragraph!==undefined && srcArray) {
-
-     // console.log("PALING", context.paragraph) 
-
+    if (context.paragraph !== undefined && srcArray) {
       playAudio(context.paragraph)
     }
-  }, [ context, srcArray, autoplay])
+  }, [context, srcArray, autoplay])
 
 
-const togglePlay = () => {
+  const togglePlay = () => {
 
     const audio = audioRef.current;
-      if (audio && src !== '') {
-        audio.play();
+    if (audio && src !== '') {
+      audio.play();
     }
-    
-      setIsPlaying(true);
+
+    setIsPlaying(true);
   }
 
- const togglePause = () => {
+  const togglePause = () => {
 
     const audio = audioRef.current;
-     if (audio) {
-        audio.pause();
+    if (audio) {
+      audio.pause();
     }
 
-      setIsPlaying(false);
+    setIsPlaying(false);
 
-        
+
   }
 
   useEffect(() => {
     const audio = audioRef.current;
 
-    
+
     if (audio) {
 
-const handleLoadedMetadata = () => {
+      const handleLoadedMetadata = () => {
         setTrackLength(audio.duration);
-    }
-const handleTimeUpdate = () => {
+      }
+      const handleTimeUpdate = () => {
 
         setCurrentTime(audio.currentTime);
       }
-const handlePlay = () => {
+      const handlePlay = () => {
         togglePlay()
-      if(context.paragraph!==undefined){
+        if (context.paragraph !== undefined) {
 
-      getNext(context.paragraph+1);
-        
+          getNext(context.paragraph + 1);
+
+        }
+
       }
-
-    }
       const handleEnded = () => {
-        
-          handleNext()
-        if(context.paragraph===srcArray.length-1 || !autoplay){
+
+        handleNext()
+        if (context.paragraph === srcArray.length - 1 || !autoplay) {
           // console.log("AAAGHH")
           togglePause();
           setSrc("");
@@ -155,28 +149,29 @@ const handlePlay = () => {
 
       audio.addEventListener('ended', handleEnded);
 
-return () => {
-    const audio = audioRef.current;
-    if (audio) {
-      audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
-      audio.removeEventListener('timeupdate', handleTimeUpdate);
-      audio.removeEventListener('play', handlePlay);
+      return () => {
+        const audio = audioRef.current;
+        if (audio) {
+          audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
+          audio.removeEventListener('timeupdate', handleTimeUpdate);
+          audio.removeEventListener('play', handlePlay);
+        }
+      };
+
     }
-  };
+  }, [context, srcArray, autoplay]);
 
-      }}, [context, srcArray, autoplay]);
-  
-const isTouchScreenDevice = () => {
-    try{
-        document.createEvent('TouchEvent');
-        return true;
-    }catch(e){
-        return false;
+  const isTouchScreenDevice = () => {
+    try {
+      document.createEvent('TouchEvent');
+      return true;
+    } catch (e) {
+      return false;
     }
-}
+  }
 
 
-      
+
 
   const handleVolumeChange = (event: Event, newValue: number | number[]) => {
     if (typeof newValue === 'number') {
@@ -204,7 +199,7 @@ const isTouchScreenDevice = () => {
           <Grid justifyContent="center">
 
             <IconButton onClick={handlePrevious}>
-              <SkipPrevious  />
+              <SkipPrevious />
             </IconButton>
 
             <IconButton onClick={isPlaying ? togglePause : togglePlay}>
@@ -241,14 +236,14 @@ const isTouchScreenDevice = () => {
 
           <Grid xs={1} sx={{ fontSize: "10px" }} item>
 
-            {src&&`${Math.floor(currentTime / 60)}:${(currentTime % 60).toFixed(0).padStart(2, '0')} / ${Math.floor(
+            {src && `${Math.floor(currentTime / 60)}:${(currentTime % 60).toFixed(0).padStart(2, '0')} / ${Math.floor(
               trackLength / 60
             )}:${(trackLength % 60).toFixed(0).padStart(2, '0')}`}
 
           </Grid>
 
           <Grid item xs={2}>
-           { !isTouchScreenDevice() && <Slider
+            {!isTouchScreenDevice() && <Slider
               value={volume}
               min={0}
               max={1}
