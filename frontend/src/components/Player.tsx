@@ -60,6 +60,19 @@ const AudioPlayer = () => {
     }
   };
 
+  const getNext = async (index: number) => {
+    const controller = new AbortController();
+    const signal = controller.signal;
+    if ('' === srcArray[index] && index >= 0 && index < srcArray.length) {
+      fetchArticleSound(context.article, index, signal).then((articleSound) => {
+        const src = URL.createObjectURL(articleSound);
+        const a = srcArray;
+        a[index] = src;
+        setSrcArray(a);
+      });
+    }
+  };
+
   useEffect(() => {
     if (context.paragraphsLen) {
       setSrc('');
@@ -111,6 +124,11 @@ const AudioPlayer = () => {
       };
       const handlePlay = () => {
         togglePlay();
+        if (context.paragraph !== undefined) {
+          getNext(context.paragraph + 1).catch((error) => {
+            console.error('Error in then block:', error);
+          });
+        }
       };
       const handleEnded = () => {
         handleNext();
@@ -205,8 +223,8 @@ const AudioPlayer = () => {
               `${Math.floor(currentTime / 60)}:${(currentTime % 60)
                 .toFixed(0)
                 .padStart(2, '0')} / ${Math.floor(trackLength / 60)}:${(trackLength % 60)
-                .toFixed(0)
-                .padStart(2, '0')}`}
+                  .toFixed(0)
+                  .padStart(2, '0')}`}
           </Grid>
 
           <Grid item xs={2}>
