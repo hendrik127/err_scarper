@@ -1,11 +1,15 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "ESNext",
     "lib": [
       "dom",
       "dom.iterable",
       "esnext"
     ],
+    "types": [
+      "vite/client"
+    ],
+    "isolatedModules": true,
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -16,7 +20,6 @@
     "module": "esnext",
     "moduleResolution": "node",
     "resolveJsonModule": true,
-    "isolatedModules": false,
     "noEmit": true,
     "jsx": "react-jsx"
   },

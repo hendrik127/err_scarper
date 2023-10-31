@@ -1,7 +1,7 @@
 import { useMyContext } from '../AudioContext';
 import '../style/App.css'; // Create this CSS file in the same folder
 import { useEffect, useState, useRef } from 'react';
-import { Paper, Slider, Grid, IconButton, Switch, autocompleteClasses } from '@mui/material';
+import { Paper, Slider, Grid, IconButton, Switch } from '@mui/material';
 import { PlayArrow, Pause, SkipPrevious, SkipNext } from '@mui/icons-material';
 import { fetchArticleSound } from '../data/sound';
 

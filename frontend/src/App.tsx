@@ -30,7 +30,7 @@ function App() {
         }
 
       }
-      ).then(_ => {
+      ).then(() => {
         setLoading(false);
         setPageIndex(pageIndex + 1)
       })
