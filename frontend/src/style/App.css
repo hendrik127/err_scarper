@@ -17,7 +17,7 @@
 }
 
 .audio-player-container {
- position: fixed;
+  position: fixed;
   bottom: 0;
   left: 0; /* Set to the left edge of the screen */
   width: 100%; /* Make it 100% wide */
@@ -26,31 +26,28 @@
   padding: 10px;
   text-align: center;
   z-index: 999; /* Ensure the player stays on top of other content */
- }
+}
 
 .audio-player-container:hover {
   background-color: #444; /* Customize the background color on hover */
 }
 
-#player{
-
-position: fixed;
+#player {
+  position: fixed;
   bottom: 0;
   left: 0; /* Set to the left edge of the screen */
   width: 100%; /* Make it 100% wide */
   color: white; /* Customize the text color */
   text-align: center;
-  z-index: 999; 
+  z-index: 999;
 }
 .header {
-margin-bottom:1px
+  margin-bottom: 1px;
 }
-.App{
-  padding:1px;
-  margin-bottom:0;
+.App {
+  padding: 1px;
+  margin-bottom: 0;
   display: flex;
   flex-direction: column;
-  width:100%;
+  width: 100%;
 }
-
-

@@ -1,4 +1,4 @@
-import { apiUrl } from "./api";
+import { apiUrl } from './api';
 export interface ArticleData {
   id: number;
   title: string;
@@ -9,5 +9,3 @@ export async function fetchPage(page = 1, pageSize = 20): Promise<ArticleData[]>
   const data = await response.json();
   return data;
 }
-
-

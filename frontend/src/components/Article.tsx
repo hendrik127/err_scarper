@@ -12,63 +12,48 @@ interface ArticleProps {
 }
 
 function Article(props: ArticleProps) {
-
   const context = useMyContext();
   const [expanded, setExpanded] = useState(false);
-  const [paragraphs, setParagraphs] = useState<string[]>([])
+  const [paragraphs, setParagraphs] = useState<string[]>([]);
   const handleExpandClick = async () => {
     setExpanded(!expanded);
   };
 
   useEffect(() => {
     if (expanded && paragraphs.length === 0) {
-      fetchParagraphs(props.id).then(
-        data => {
-          setParagraphs(data)
-          context.setParagraphsLen(data.length)
-          context.setArticle(props.id)
-          context.setParagraph(0)
-        }
-      )
+      fetchParagraphs(props.id).then((data) => {
+        setParagraphs(data);
+        context.setParagraphsLen(data.length);
+        context.setArticle(props.id);
+        context.setParagraph(0);
+      });
     }
-  }, [expanded])
-
-
+  }, [expanded]);
 
   const content = (
     <CardContent sx={{ justifyContent: 'space-between', display: 'flex' }}>
-
-      <Typography >
-        {props.title}
-      </Typography>
+      <Typography>{props.title}</Typography>
       <ExpandMoreIcon
         style={{
           transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)',
-          transition: 'transform 0.2s ease-in-out',
+          transition: 'transform 0.2s ease-in-out'
         }}
       />
-    </CardContent >
+    </CardContent>
   );
 
   return (
     <Card variant="outlined">
-      <CardActionArea onClick={handleExpandClick}>
-        {content}
-      </CardActionArea>
+      <CardActionArea onClick={handleExpandClick}>{content}</CardActionArea>
       <Collapse in={expanded}>
-        <CardContent >
-          {
-            paragraphs.map((paragraph, inx) => <Paragraph
-              article={props.id}
-              key={`${props.id}-${inx}`}
-              text={paragraph} p_id={inx}
-            />)
-          }
+        <CardContent>
+          {paragraphs.map((paragraph, inx) => (
+            <Paragraph article={props.id} key={`${props.id}-${inx}`} text={paragraph} p_id={inx} />
+          ))}
         </CardContent>
       </Collapse>
-    </Card >
+    </Card>
   );
 }
 
-
-export default Article
+export default Article;
