@@ -2,7 +2,7 @@ import Collapse from '@mui/material/Collapse';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import CardContent from '@mui/material/CardContent';
 import { Card, CardActionArea, Typography } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Paragraph from './Paragraph';
 import { useMyContext } from '../AudioContext';
 import { fetchParagraphs } from '../data/paragraphs';
@@ -17,18 +17,14 @@ function Article(props: ArticleProps) {
   const [paragraphs, setParagraphs] = useState<string[]>([]);
   const handleExpandClick = async () => {
     setExpanded(!expanded);
-  };
-
-  useEffect(() => {
-    if (expanded && paragraphs.length === 0) {
+    if (paragraphs.length === 0) {
       fetchParagraphs(props.id).then((data) => {
         setParagraphs(data);
-        context.setParagraphsLen(data.length);
-        context.setArticle(props.id);
-        context.setParagraph(0);
+        context.handleNewArticle(props.id, data.length);
       });
     }
-  }, [expanded]);
+  };
+
 
   const content = (
     <CardContent sx={{ justifyContent: 'space-between', display: 'flex' }}>

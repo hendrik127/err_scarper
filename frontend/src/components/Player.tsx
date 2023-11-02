@@ -1,168 +1,59 @@
 import { useMyContext } from '../AudioContext';
 import '../style/App.css'; // Create this CSS file in the same folder
-import { useEffect, useState, useRef } from 'react';
-import { Paper, Slider, Grid, IconButton, Switch } from '@mui/material';
+import { createRef, useEffect, useState } from 'react';
+import { Paper, Grid, IconButton, Slider, Switch } from '@mui/material';
 import { PlayArrow, Pause, SkipPrevious, SkipNext } from '@mui/icons-material';
-import { fetchArticleSound } from '../data/sound';
+// import { fetchArticleSound } from '../data/sound';
 
 const AudioPlayer = () => {
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const audioRef = createRef<HTMLAudioElement>();
+
   const [isPlaying, setIsPlaying] = useState(false);
-  const [volume, setVolume] = useState(0.5);
-  const [trackLength, setTrackLength] = useState(0);
-  const [autoplay, setautoplay] = useState(false);
+  const [autoPlayNext, setAutoPlayNext] = useState(true);
+
+  // const [volume, setVolume] = useState(0.5);
+  // const [autoplay, setautoplay] = useState(false);
   const context = useMyContext();
-  const [currentTime, setCurrentTime] = useState(0);
-  const [src, setSrc] = useState('');
-  const [srcArray, setSrcArray] = useState<string[]>([]);
 
-  const handleAutoplay = () => {
-    setautoplay(!autoplay);
-  };
-
-  const handlePrevious = () => {
-    setCurrentTime(0);
-    if (!autoplay) {
-      togglePause();
-    }
-    if (context.paragraph === 0) {
-      context.setParagraph(0);
-    } else {
-      if (context.paragraph !== undefined) context.setParagraph(context.paragraph - 1);
-    }
-  };
-
-  const handleNext = () => {
-    setCurrentTime(0);
-    if (!autoplay) {
-      togglePause();
-    }
-    if (context.paragraph !== undefined) context.setParagraph(context.paragraph + 1);
-  };
-
-  const playAudio = async (index2: number, signal: AbortSignal) => {
-    try {
-      if (index2 >= 0 && index2 < srcArray.length && !srcArray[index2]) {
-        const articleSound = await fetchArticleSound(context.article, index2, signal);
-        const src = URL.createObjectURL(articleSound);
-        setSrc(src);
-        setSrcArray((prevSrcArray) => {
-          const newArray = [...prevSrcArray];
-          newArray[index2] = src;
-          return newArray;
-        });
-      } else if (index2 >= 0 && index2 < srcArray.length) {
-        setSrc(srcArray[index2]);
-      }
-    } catch (error) {
-      // Handle errors here if needed
-      console.error('Error:', error);
-    }
-  };
-
-  const getNext = async (index: number) => {
-    const controller = new AbortController();
-    const signal = controller.signal;
-    if ('' === srcArray[index] && index >= 0 && index < srcArray.length) {
-      fetchArticleSound(context.article, index, signal).then((articleSound) => {
-        const src = URL.createObjectURL(articleSound);
-        const a = srcArray;
-        a[index] = src;
-        setSrcArray(a);
-      });
-    }
-  };
-
-  useEffect(() => {
-    if (context.paragraphsLen) {
-      setSrc('');
-      setSrcArray(Array.from({ length: context.paragraphsLen }, () => ''));
-    }
-  }, [context.paragraphsLen, context.article]);
-
-  useEffect(() => {
-    const controller = new AbortController();
-    const signal = controller.signal;
-
-    if (context.paragraph !== undefined && srcArray) {
-      playAudio(context.paragraph, signal).catch((error) => {
-        // Handle errors here if needed
-        console.error('Error in then block:', error);
-      });
-    }
-
-    return () => controller.abort();
-  }, [context, srcArray, autoplay]);
+  const [volume, setVolume] = useState(0.5);
 
   const togglePlay = () => {
     const audio = audioRef.current;
-    if (audio && src !== '') {
+    if (audio?.src) {
+      console.log("TOGGLIN")
       audio.play();
+
+      setIsPlaying(true);
     }
 
-    setIsPlaying(true);
+
   };
 
   const togglePause = () => {
     const audio = audioRef.current;
     if (audio) {
+
       audio.pause();
-    }
-
-    setIsPlaying(false);
-  };
-
-  useEffect(() => {
-    const audio = audioRef.current;
-
-    if (audio) {
-      const handleLoadedMetadata = () => {
-        setTrackLength(audio.duration);
-      };
-      const handleTimeUpdate = () => {
-        setCurrentTime(audio.currentTime);
-      };
-      const handlePlay = () => {
-        togglePlay();
-        if (context.paragraph !== undefined) {
-          getNext(context.paragraph + 1).catch((error) => {
-            console.error('Error in then block:', error);
-          });
-        }
-      };
-      const handleEnded = () => {
-        handleNext();
-        if (context.paragraph === srcArray.length - 1 || !autoplay) {
-          // console.log("AAAGHH")
-          togglePause();
-          setSrc('');
-        }
-      };
-      audio.addEventListener('loadedmetadata', handleLoadedMetadata);
-      audio.addEventListener('timeupdate', handleTimeUpdate);
-      audio.addEventListener('play', handlePlay);
-
-      audio.addEventListener('ended', handleEnded);
-
-      return () => {
-        const audio = audioRef.current;
-        if (audio) {
-          audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
-          audio.removeEventListener('timeupdate', handleTimeUpdate);
-          audio.removeEventListener('play', handlePlay);
-        }
-      };
-    }
-  }, [context, srcArray, autoplay]);
-
-  const isTouchScreenDevice = () => {
-    try {
-      document.createEvent('TouchEvent');
-      return true;
-    } catch (e) {
-      return false;
+      setIsPlaying(false);
     }
   };
+
+  const toggleAutoPlayNext = () => {
+    setAutoPlayNext(!autoPlayNext)
+  }
+
+  const handlePrevious = () => {
+    console.log("PREV")
+    togglePause();
+    context.handlePrevious();
+  };
+
+  const handleNext = () => {
+    console.log("NEXT")
+    context.handleNext();
+  };
+
 
   const handleVolumeChange = (event: Event, newValue: number | number[]) => {
     if (typeof newValue === 'number') {
@@ -173,20 +64,62 @@ const AudioPlayer = () => {
     }
   };
 
-  const handleSeekChange = (event: Event, newValue: number | number[]) => {
-    if (typeof newValue === 'number') {
-      if (audioRef.current) {
-        audioRef.current.currentTime = newValue;
+  const handleEnded = () => {
+    const audio = audioRef.current;
+    console.log(audio, "ENDED")
+    if (audio) {
+      audio.pause();
+    }
+
+    setIsPlaying(false);
+    // Audio playback ended, trigger logic to play the next audio
+    handleNext();
+  };
+
+  const handlePlay = () => {
+    togglePlay();
+  }
+
+  useEffect(() => {
+    // Set up the event listener for the audio 'ended' event
+    const audio = audioRef.current;
+    if (audio) {
+      audio.addEventListener('ended', handleEnded);
+      audio.addEventListener('play', handlePlay);
+
+    }
+
+    // Cleanup the event listener when the component unmounts
+    return () => {
+      if (audio) {
+        audio.removeEventListener('ended', handleEnded);
+        audio.removeEventListener('play', handlePlay);
       }
+    };
+  }, [context.src]);
+
+
+
+
+  const isTouchScreenDevice = () => {
+    try {
+      document.createEvent('TouchEvent');
+      return true;
+    } catch (e) {
+      return false;
     }
   };
+
+
 
   return (
     <Paper
       sx={{ padding: '2vw', position: 'fixed', width: '100vw', bottom: '0' }}
       className="audio-player"
     >
-      <audio autoPlay={autoplay} ref={audioRef} src={src}></audio>
+      <audio ref={audioRef} autoPlay={autoPlayNext} src={context.src}></audio>
+
+
       <Grid container>
         <Grid container spacing={2} direction="row" justifyContent="center" alignItems="flex-end">
           <Grid justifyContent="center">
@@ -201,35 +134,15 @@ const AudioPlayer = () => {
               <SkipNext />
             </IconButton>
 
-            <Switch onChange={handleAutoplay} checked={autoplay} />
+            <Switch onChange={toggleAutoPlayNext} checked={autoPlayNext} />
+
           </Grid>
         </Grid>
 
         <Grid container spacing={2} direction="row" justifyContent="flex-start" alignItems="center">
-          <Grid item xs={isTouchScreenDevice() ? 10 : 8}>
-            <Slider
-              size="small"
-              value={currentTime}
-              min={0}
-              max={trackLength}
-              step={1}
-              onChange={handleSeekChange}
-              aria-labelledby="seek-slider"
-            />
-          </Grid>
-
-          <Grid xs={1} sx={{ fontSize: '10px' }} item>
-            {src &&
-              `${Math.floor(currentTime / 60)}:${(currentTime % 60)
-                .toFixed(0)
-                .padStart(2, '0')} / ${Math.floor(trackLength / 60)}:${(trackLength % 60)
-                  .toFixed(0)
-                  .padStart(2, '0')}`}
-          </Grid>
-
           <Grid item xs={2}>
             {!isTouchScreenDevice() && (
-              <Slider
+              < Slider
                 value={volume}
                 min={0}
                 max={1}
@@ -237,7 +150,8 @@ const AudioPlayer = () => {
                 onChange={handleVolumeChange}
                 aria-labelledby="continuous-slider"
               />
-            )}
+            )
+            }
           </Grid>
         </Grid>
       </Grid>
@@ -246,3 +160,5 @@ const AudioPlayer = () => {
 };
 
 export default AudioPlayer;
+
+
