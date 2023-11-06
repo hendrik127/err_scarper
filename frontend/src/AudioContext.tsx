@@ -8,13 +8,12 @@ type MyProviderProps = {
 // Define the type for the context value
 type MyContextValue = {
   src: string;
-  paragraph: number | undefined;
+  paragraph: number;
+  article: number;
+  loading: boolean;
   setParagraph: (arg: number) => void;
   handleNewArticle: (article: number, length: number) => void;
   handleParagraph: (article: number, paragraph: number) => void
-  handleNext: () => void;
-  handlePrevious: () => void;
-
 };
 
 type ArticleIndexToParagraphAudioSource = {
@@ -28,13 +27,16 @@ export const MyProvider: React.FC<MyProviderProps> = ({ children }) => {
 
   const [mapArticleToParagraph, setMapArticleToParagraph] = useState<ArticleIndexToParagraphAudioSource>({});
   const [article, setArticle] = useState(-1);
-  const [paragraph, setParagraph] = useState(-1);
+  const [paragraph, setParagraph] = useState(0);
   const [src, setSrc] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [abortControllers, setAbortControllers] = useState<AbortController[]>([])
 
 
-  console.log("STATE CHANGED")
-  console.log("article", article)
-  console.log("paragraph", paragraph)
+
+  // console.log("STATE CHANGED")
+  // console.log("article", article)
+  // console.log("paragraph", paragraph)
 
 
 
@@ -55,15 +57,42 @@ export const MyProvider: React.FC<MyProviderProps> = ({ children }) => {
 
   const handleParagraph = async (articleIndex: number, paragraphIndex: number) => {
 
+    if (paragraphIndex >= mapArticleToParagraph[articleIndex].length || paragraphIndex < 0) {
+      return;
+    }
+
+    if (abortControllers.length > 0) {
+      while (abortControllers.length > 0) {
+        const controller = abortControllers.pop()
+        if (controller) {
+          controller.abort();
+        }
+      }
+
+    }
+    const controller = new AbortController();
+
+
+    setAbortControllers([controller]);
+
+    // Create a new AbortController
+    // Store the new AbortController in the ref
+
+    console.log("Handlin paragraph", articleIndex, paragraphIndex)
+    setArticle(articleIndex)
+    setParagraph(paragraphIndex)
     if (!mapArticleToParagraph[articleIndex][paragraphIndex]) {
-      const controller = new AbortController();
-      const signal = controller.signal;
-      fetchArticleSound(articleIndex, paragraphIndex, signal).then(articleSound => {
+      setLoading(true);
+
+      fetchArticleSound(articleIndex, paragraphIndex, controller.signal).then(articleSound => {
+        if (!articleSound) {
+          return;
+        }
         const src = URL.createObjectURL(articleSound);
-        setArticle(articleIndex);
-        setParagraph(paragraphIndex);
+
         setSrc(src);
         setMapArticleToParagraph((prevMap) => {
+          setLoading(false);
           const newArray = prevMap[articleIndex];
           newArray[paragraphIndex] = src;
           return {
@@ -77,29 +106,8 @@ export const MyProvider: React.FC<MyProviderProps> = ({ children }) => {
       });
 
     } else {
-      setArticle(articleIndex);
-      setParagraph(paragraphIndex);
       setSrc(mapArticleToParagraph[articleIndex][paragraphIndex])
     }
-  }
-
-  const handleNext = () => {
-    const nextParagraph = paragraph + 1;
-    console.log(nextParagraph, "next paragraph")
-
-    if (nextParagraph < (mapArticleToParagraph[article]?.length || 0)) {
-      //setParagraph(nextParagraph);
-      handleParagraph(article, nextParagraph);
-    }
-
-  }
-  const handlePrevious = () => {
-    const previousParagraph = paragraph - 1;
-    if (paragraph > 0) {
-      // setParagraph(previousParagraph);
-      handleParagraph(article, previousParagraph);
-    }
-
   }
 
   return (
@@ -107,11 +115,11 @@ export const MyProvider: React.FC<MyProviderProps> = ({ children }) => {
       value={{
         src,
         paragraph,
+        article,
+        loading,
         setParagraph,
         handleNewArticle,
         handleParagraph,
-        handleNext,
-        handlePrevious
       }}
     >
       {children}

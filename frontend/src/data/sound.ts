@@ -1,11 +1,20 @@
 import { apiUrl } from './api';
-export const fetchArticleSound = (
+export const fetchArticleSound = async (
   n_id: number,
   p_id: number,
   signal: AbortSignal
-): Promise<Blob> => {
+): Promise<Blob | undefined> => {
   const url = `${apiUrl}/audio/${n_id}/${p_id}`;
-  return fetch(url, { signal }).then((response) => {
-    return response.blob();
-  });
+  try {
+    const response = await fetch(url, { signal });
+
+    // Check if the request was aborted
+    if (signal.aborted) {
+      throw new Error('Request aborted');
+    }
+
+    return await response.blob();
+  } catch (error) {
+    console.log(error)
+  }
 };

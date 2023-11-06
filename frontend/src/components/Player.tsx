@@ -1,22 +1,27 @@
 import { useMyContext } from '../AudioContext';
 import '../style/App.css'; // Create this CSS file in the same folder
-import { createRef, useEffect, useState } from 'react';
-import { Paper, Grid, IconButton, Slider, Switch } from '@mui/material';
-import { PlayArrow, Pause, SkipPrevious, SkipNext } from '@mui/icons-material';
+import { useEffect, useRef, useState } from 'react';
+import { Paper, Grid, IconButton, Slider } from '@mui/material';
+import {
+  PlayArrow, Pause, SkipNext, SkipPrevious,
+  // SkipPrevious, SkipNext 
+} from '@mui/icons-material';
 // import { fetchArticleSound } from '../data/sound';
 
 const AudioPlayer = () => {
 
-  const audioRef = createRef<HTMLAudioElement>();
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const [isPlaying, setIsPlaying] = useState(false);
-  const [autoPlayNext, setAutoPlayNext] = useState(true);
+  const [duration, setDuration] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
 
   // const [volume, setVolume] = useState(0.5);
   // const [autoplay, setautoplay] = useState(false);
   const context = useMyContext();
 
   const [volume, setVolume] = useState(0.5);
+
 
   const togglePlay = () => {
     const audio = audioRef.current;
@@ -26,33 +31,16 @@ const AudioPlayer = () => {
 
       setIsPlaying(true);
     }
-
-
   };
 
   const togglePause = () => {
     const audio = audioRef.current;
     if (audio) {
-
       audio.pause();
       setIsPlaying(false);
     }
   };
 
-  const toggleAutoPlayNext = () => {
-    setAutoPlayNext(!autoPlayNext)
-  }
-
-  const handlePrevious = () => {
-    console.log("PREV")
-    togglePause();
-    context.handlePrevious();
-  };
-
-  const handleNext = () => {
-    console.log("NEXT")
-    context.handleNext();
-  };
 
 
   const handleVolumeChange = (event: Event, newValue: number | number[]) => {
@@ -64,24 +52,21 @@ const AudioPlayer = () => {
     }
   };
 
-  const handleEnded = () => {
-    const audio = audioRef.current;
-    console.log(audio, "ENDED")
-    if (audio) {
-      audio.pause();
-    }
 
-    setIsPlaying(false);
-    // Audio playback ended, trigger logic to play the next audio
-    handleNext();
-  };
 
-  const handlePlay = () => {
-    togglePlay();
-  }
+
 
   useEffect(() => {
+
+    console.log(context.paragraph, "ctx paragraph")
     // Set up the event listener for the audio 'ended' event
+
+    const handlePlay = () => {
+      togglePlay();
+    }
+    const handleEnded = () => {
+      context.handleParagraph(context.article, context.paragraph + 1)
+    }
     const audio = audioRef.current;
     if (audio) {
       audio.addEventListener('ended', handleEnded);
@@ -96,7 +81,37 @@ const AudioPlayer = () => {
         audio.removeEventListener('play', handlePlay);
       }
     };
-  }, [context.src]);
+  }, [context]);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+
+    const handleLoadedMetadata = () => {
+      if (audio) {
+
+        setDuration(audio.duration);
+      }
+    };
+    const handleTimeUpdate = () => {
+      if (audio) {
+        setCurrentTime(audio.currentTime);
+      };
+    }
+
+    if (audio) {
+      audio.addEventListener('loadedmetadata', handleLoadedMetadata);
+      audio.addEventListener('timeupdate', handleTimeUpdate);
+
+    }
+
+    // Cleanup the event listener when the component unmounts
+    return () => {
+      if (audio) {
+        audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
+        audio.removeEventListener('timeupdate', handleTimeUpdate);
+      }
+    };
+  }, [audioRef?.current?.HAVE_METADATA, audioRef.current?.readyState]);
 
 
 
@@ -110,36 +125,68 @@ const AudioPlayer = () => {
     }
   };
 
+  useEffect(() => {
+    if (context.loading) {
+      togglePause()
+    }
+  }, [context.loading])
 
+
+
+  const handleSeekChange = (event: Event, newValue: number | number[]) => {
+    if (typeof newValue === 'number') {
+      if (audioRef.current) {
+        audioRef.current.currentTime = newValue;
+      }
+    }
+  };
 
   return (
     <Paper
       sx={{ padding: '2vw', position: 'fixed', width: '100vw', bottom: '0' }}
       className="audio-player"
     >
-      <audio ref={audioRef} autoPlay={autoPlayNext} src={context.src}></audio>
+      <audio ref={audioRef} autoPlay={!context.loading} src={context.loading ? '' : context.src}></audio>
 
 
       <Grid container>
         <Grid container spacing={2} direction="row" justifyContent="center" alignItems="flex-end">
           <Grid justifyContent="center">
-            <IconButton onClick={handlePrevious}>
+            <IconButton onClick={() => context.handleParagraph(context.article, context.paragraph - 1)}>
               <SkipPrevious />
             </IconButton>
 
             <IconButton onClick={isPlaying ? togglePause : togglePlay}>
               {isPlaying ? <Pause /> : <PlayArrow />}
             </IconButton>
-            <IconButton onClick={handleNext}>
+            <IconButton onClick={() => context.handleParagraph(context.article, context.paragraph + 1)}>
               <SkipNext />
             </IconButton>
-
-            <Switch onChange={toggleAutoPlayNext} checked={autoPlayNext} />
-
           </Grid>
         </Grid>
 
         <Grid container spacing={2} direction="row" justifyContent="flex-start" alignItems="center">
+
+          <Grid item xs={isTouchScreenDevice() ? 10 : 8}>
+            <Slider
+              size="small"
+              value={currentTime}
+              min={0}
+              max={duration}
+              step={1}
+              onChange={handleSeekChange}
+              aria-labelledby="seek-slider"
+            />
+          </Grid>
+
+          <Grid xs={1} sx={{ fontSize: '10px' }} item>
+            {!context.loading &&
+              `${Math.floor(currentTime / 60)}:${(currentTime % 60)
+                .toFixed(0)
+                .padStart(2, '0')} / ${Math.floor(duration / 60)}:${(duration % 60)
+                  .toFixed(0)
+                  .padStart(2, '0')}`}
+          </Grid>
           <Grid item xs={2}>
             {!isTouchScreenDevice() && (
               < Slider
@@ -160,5 +207,3 @@ const AudioPlayer = () => {
 };
 
 export default AudioPlayer;
-
-
