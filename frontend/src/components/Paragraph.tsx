@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Box } from '@mui/material';
 import { useMyContext } from '../AudioContext';
 interface ParagraphProps {
@@ -10,23 +10,21 @@ interface ParagraphProps {
 function Paragraph(props: ParagraphProps) {
   const context = useMyContext();
   const [isHovered, setIsHovered] = useState(false);
-  // const [isPlaying, setIsPlaying] = useState(false);
-  const isPlaying = false;
+  const [isPlaying, setIsPlaying] = useState(false);
+  //const isPlaying = false;
   const handleButtonClick = async () => {
     ref.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    context.handleParagraph(props.article, props.p_id);
+    context.handleParagraph(props.article, props.p_id, true);
   };
 
-  // useEffect(() => {
-  //   const p = () => {
-  //     return context.article === props.article && context.paragraph === props.p_id;
-  //   };
-  //   setIsPlaying(p());
+  useEffect(() => {
+    const playing = context.article === props.article && context.paragraph === props.p_id;
+    setIsPlaying(playing);
 
-  //   if (p()) {
-  //     ref.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  //   }
-  // }, [context]);
+    if (playing) {
+      ref.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [context]);
   const ref = useRef<HTMLButtonElement | null>(null);
 
   if (isPlaying) {

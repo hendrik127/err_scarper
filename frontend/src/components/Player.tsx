@@ -4,9 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Paper, Grid, IconButton, Slider } from '@mui/material';
 import {
   PlayArrow, Pause, SkipNext, SkipPrevious,
-  // SkipPrevious, SkipNext 
 } from '@mui/icons-material';
-// import { fetchArticleSound } from '../data/sound';
 
 const AudioPlayer = () => {
 
@@ -15,20 +13,14 @@ const AudioPlayer = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
-
-  // const [volume, setVolume] = useState(0.5);
-  // const [autoplay, setautoplay] = useState(false);
   const context = useMyContext();
-
   const [volume, setVolume] = useState(0.5);
 
 
   const togglePlay = () => {
     const audio = audioRef.current;
     if (audio?.src) {
-      console.log("TOGGLIN")
       audio.play();
-
       setIsPlaying(true);
     }
   };
@@ -52,20 +44,24 @@ const AudioPlayer = () => {
     }
   };
 
-
-
-
+  const isTouchScreenDevice = () => {
+    try {
+      document.createEvent('TouchEvent');
+      return true;
+    } catch (e) {
+      return false;
+    }
+  };
 
   useEffect(() => {
-
-    console.log(context.paragraph, "ctx paragraph")
-    // Set up the event listener for the audio 'ended' event
-
     const handlePlay = () => {
       togglePlay();
+      if (context.paragraph > -1) {
+        context.handleParagraph(context.article, context.paragraph + 1, false);
+      }
     }
     const handleEnded = () => {
-      context.handleParagraph(context.article, context.paragraph + 1)
+      context.handleParagraph(context.article, context.paragraph + 1, true)
     }
     const audio = audioRef.current;
     if (audio) {
@@ -74,7 +70,6 @@ const AudioPlayer = () => {
 
     }
 
-    // Cleanup the event listener when the component unmounts
     return () => {
       if (audio) {
         audio.removeEventListener('ended', handleEnded);
@@ -104,7 +99,6 @@ const AudioPlayer = () => {
 
     }
 
-    // Cleanup the event listener when the component unmounts
     return () => {
       if (audio) {
         audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
@@ -116,14 +110,7 @@ const AudioPlayer = () => {
 
 
 
-  const isTouchScreenDevice = () => {
-    try {
-      document.createEvent('TouchEvent');
-      return true;
-    } catch (e) {
-      return false;
-    }
-  };
+
 
   useEffect(() => {
     if (context.loading) {
@@ -152,14 +139,14 @@ const AudioPlayer = () => {
       <Grid container>
         <Grid container spacing={2} direction="row" justifyContent="center" alignItems="flex-end">
           <Grid justifyContent="center">
-            <IconButton onClick={() => context.handleParagraph(context.article, context.paragraph - 1)}>
+            <IconButton onClick={() => context.handleParagraph(context.article, context.paragraph - 1, true)}>
               <SkipPrevious />
             </IconButton>
 
             <IconButton onClick={isPlaying ? togglePause : togglePlay}>
               {isPlaying ? <Pause /> : <PlayArrow />}
             </IconButton>
-            <IconButton onClick={() => context.handleParagraph(context.article, context.paragraph + 1)}>
+            <IconButton onClick={() => context.handleParagraph(context.article, context.paragraph + 1, true)}>
               <SkipNext />
             </IconButton>
           </Grid>

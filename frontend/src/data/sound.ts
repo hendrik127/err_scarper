@@ -7,12 +7,9 @@ export const fetchArticleSound = async (
   const url = `${apiUrl}/audio/${n_id}/${p_id}`;
   try {
     const response = await fetch(url, { signal });
-
-    // Check if the request was aborted
     if (signal.aborted) {
       throw new Error('Request aborted');
     }
-
     return await response.blob();
   } catch (error) {
     console.log(error)
