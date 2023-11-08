@@ -108,17 +108,11 @@ const AudioPlayer = () => {
   }, [audioRef?.current?.HAVE_METADATA, audioRef.current?.readyState]);
 
 
-
-
-
-
   useEffect(() => {
     if (context.loading) {
       togglePause()
     }
   }, [context.loading])
-
-
 
   const handleSeekChange = (event: Event, newValue: number | number[]) => {
     if (typeof newValue === 'number') {

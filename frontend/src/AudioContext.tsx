@@ -32,14 +32,6 @@ export const MyProvider: React.FC<MyProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [abortControllers, setAbortControllers] = useState<AbortController[]>([])
 
-
-
-
-
-
-
-
-
   const handleNewArticle = (articleIndex: number, length: number) => {
     setArticle(articleIndex);
     if (!mapArticleToParagraph[articleIndex]) {
@@ -49,14 +41,10 @@ export const MyProvider: React.FC<MyProviderProps> = ({ children }) => {
     }
   }
 
-
-
   const handleParagraph = async (articleIndex: number, paragraphIndex: number, play: boolean) => {
-
     if (paragraphIndex >= mapArticleToParagraph[articleIndex].length || paragraphIndex < 0) {
       return;
     }
-
     if (abortControllers.length > 0) {
       while (abortControllers.length > 0) {
         const controller = abortControllers.pop()
@@ -68,9 +56,7 @@ export const MyProvider: React.FC<MyProviderProps> = ({ children }) => {
     }
     const controller = new AbortController();
 
-
     setAbortControllers([controller]);
-
     if (play) {
       setArticle(articleIndex)
       setParagraph(paragraphIndex)
@@ -80,7 +66,6 @@ export const MyProvider: React.FC<MyProviderProps> = ({ children }) => {
       if (play) {
         setLoading(true);
       }
-
       fetchArticleSound(articleIndex, paragraphIndex, controller.signal).then(articleSound => {
         if (!articleSound) {
           return;
