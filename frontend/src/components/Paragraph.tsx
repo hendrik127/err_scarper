@@ -11,7 +11,6 @@ function Paragraph(props: ParagraphProps) {
   const context = useMyContext();
   const [isHovered, setIsHovered] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
-  //const isPlaying = false;
   const handleButtonClick = async () => {
     ref.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     context.handleParagraph(props.article, props.p_id, true);

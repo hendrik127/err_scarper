@@ -5,7 +5,6 @@ type MyProviderProps = {
   children: React.ReactNode;
 };
 
-// Define the type for the context value
 type MyContextValue = {
   src: string;
   paragraph: number;
@@ -21,9 +20,7 @@ type ArticleIndexToParagraphAudioSource = {
 };
 
 export const MyContext = createContext<MyContextValue | undefined>(undefined);
-// Create a provider component
 export const MyProvider: React.FC<MyProviderProps> = ({ children }) => {
-
 
   const [mapArticleToParagraph, setMapArticleToParagraph] = useState<ArticleIndexToParagraphAudioSource>({});
   const [article, setArticle] = useState(-1);

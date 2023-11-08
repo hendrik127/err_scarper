@@ -61,6 +61,7 @@ const AudioPlayer = () => {
       }
     }
     const handleEnded = () => {
+      togglePause()
       context.handleParagraph(context.article, context.paragraph + 1, true)
     }
     const audio = audioRef.current;
@@ -106,7 +107,6 @@ const AudioPlayer = () => {
       }
     };
   }, [audioRef?.current?.HAVE_METADATA, audioRef.current?.readyState]);
-
 
   useEffect(() => {
     if (context.loading) {
