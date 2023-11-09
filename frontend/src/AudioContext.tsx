@@ -30,7 +30,6 @@ export const MyProvider: React.FC<MyProviderProps> = ({ children }) => {
   const [abortControllers, setAbortControllers] = useState<AbortController[]>([])
 
   const handleNewArticle = (articleIndex: number, length: number) => {
-    setArticle(articleIndex);
     if (!mapArticleToParagraph[articleIndex]) {
       const newMap = mapArticleToParagraph;
       newMap[articleIndex] = Array.from({ length }, () => '');
