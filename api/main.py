@@ -1,18 +1,19 @@
 from fastapi.responses import StreamingResponse
 import io
 import json
-from typing import Dict
+from fastapi import Header
 import httpx
 from fastapi import FastAPI, HTTPException, Depends
 from pydantic import parse_obj_as
 from scrape import scrape_data
-from typing import List
+from typing import List, Dict, Optional, Tuple
 from sqlmodel import Session, select
 from database import Article, ArticleAudio, engine
-from fastapi.middleware.cors import CORSMiddleware
+# from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
+from fastapi import HTTPException
 
 
 class TextToSpeech(BaseModel):
@@ -46,17 +47,17 @@ def scrape(all: bool) -> List[Article]:
 
 app = FastAPI()
 
-origins = [
-    "*",
-]
+# origins = [
+#     "*",
+# ]
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=origins,
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
 
 
 @app.on_event("startup")
@@ -119,37 +120,64 @@ async def sort() -> List[Article]:
         return articles_by_date
 
 
-@app.get("/audio/{article_id}/{index}")
-async def audio(article_id: int, index: int, speaker: str = "Mari", speed: float = 1.0) -> StreamingResponse:
-    headers: Dict = {"Content-Type": "application/json"}
-    content_type = "audio/wav"
+async def fetchAndSaveAudio(article_id: int, index: int, text: str = "",
+                            speaker: str = "Mari", speed: float = 1.0):
 
-    text = ""
-    with Session(engine) as session:
-        stmt = select(Article).where(Article.id == article_id)
-        result = session.exec(stmt)
-        article = result.first()
-        if not article:
-            return b''
-        text = article.content[index]
+    headers: Dict = {"Content-Type": "application/json"}
     with Session(engine) as session:
         stmt2 = select(ArticleAudio).where(ArticleAudio.article_id == article_id,
                                            ArticleAudio.index == index)
         result2 = session.exec(stmt2)
         audio = result2.first()
-        if not audio.audio:
+        audio_binary = audio.audio
+        if not audio.audio and text:
             try:
                 async with httpx.AsyncClient() as client:
                     body = TextToSpeech(text=text,
                                         speaker=speaker, speed=speed)
                     response = await client.post(TEXT_TO_SPEECH_URL, headers=headers, json=body.dict())
-                    # response.raise_for_status()  # Raise an exception if the request fails
-                    audio_binary = response.content  # Use response.content as binary audio data
+                    audio_binary = response.content
                     audio.audio = audio_binary
                     session.add(audio)
                     session.commit()
+            except httpx.HTTPStatusError as e:
+                raise HTTPException(
+                    status_code=e.response.status_code, detail=f"External API error: {e}")
             except Exception as e:
-                print(e)
+                raise HTTPException(
+                    status_code=500, detail=f"Internal Server Error: {e}")
+
+        if audio_binary:
+            return audio_binary
         else:
-            audio_binary = audio.audio
-        return StreamingResponse(io.BytesIO(audio_binary), media_type=content_type)
+            return b''
+
+
+@app.get("/audio/{article_id}/{index}")
+async def audio(article_id: int, index: int,
+                range: Optional[str] = Header(None),
+                ) -> StreamingResponse:
+
+    audio_binary = await fetchAndSaveAudio(article_id, index)
+    text = ""
+    if not audio_binary:
+        with Session(engine) as session:
+            stmt = select(Article).where(Article.id == article_id)
+            result = session.exec(stmt)
+            article = result.first()
+            if not article:
+                return b''
+            text = article.content[index]
+        audio_binary = await fetchAndSaveAudio(article_id, index, text)
+
+    if range:
+        start, end = parse_range_header(range)
+        audio_binary = audio_binary[start:end]
+
+    return StreamingResponse(io.BytesIO(audio_binary), media_type="audio/wav")
+
+
+def parse_range_header(range_header: str) -> Tuple[int, int]:
+    _, range_values = range_header.split('=')
+    start, end = map(int, range_values.split('-'))
+    return start, end + 1
