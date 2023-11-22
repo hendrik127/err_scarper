@@ -1,23 +1,25 @@
 version: '3.8'
 services:
-  #  frontend:
-    # image: hendrik127/err_frontend:latest
-    #    build:
-    # context: ./frontend
-    # dockerfile: Dockerfile.dev
-    #ports:
-    # - "3000:3000"
-    #command: npm start
-    #depends_on:
-    #  - scraper-api
-    #restart: on-failure:5
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3000:3000"
+    command: npm start
+    volumes:
+      - "/Users/hendrikp/repos/err_scraper/frontend:/frontend"
+      - "/frontend/node_modules"
+    depends_on:
+      - scraper-api
+    restart: on-failure:5
   scraper-api:
-    # image: hendrik127/err_api:latest
     build:
       context: ./api
-      dockerfile: Dockerfile
-    command: sh -c "python3 database.py && uvicorn main:app --host 0.0.0.0 --port 80"
-
+      dockerfile: Dockerfile.dev
+    command: sh -c "python3 database.py && uvicorn main:app --host 0.0.0.0 --port 80 --reload"
+    volumes:
+      - "/Users/hendrikp/repos/err_scraper/api:/api"
     ports:
       - "80:80"
     environment:
@@ -25,7 +27,7 @@ services:
       SQLALCHEMY_DATABASE_URI: "postgresql://postgres:password@database:5432/scraperdb"  # Add SQLAlchemy database URI
 
     depends_on:
-      - database  # Make sure scraper-api service waits for the database service to be up
+      - database
     restart: on-failure:5
 
   database:
