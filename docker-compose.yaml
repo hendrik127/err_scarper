@@ -8,7 +8,7 @@ services:
       - "3000:3000"
     command: npm start
     volumes:
-      - "/Users/hendrikp/repos/err_scraper/frontend:/frontend"
+      - "./frontend:/frontend"
       - "/frontend/node_modules"
     depends_on:
       - scraper-api
@@ -19,7 +19,7 @@ services:
       dockerfile: Dockerfile.dev
     command: sh -c "python3 database.py && uvicorn main:app --host 0.0.0.0 --port 80 --reload"
     volumes:
-      - "/Users/hendrikp/repos/err_scraper/api:/api"
+      - "./api:/api"
     ports:
       - "80:80"
     environment:
