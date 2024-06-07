@@ -95,7 +95,7 @@ async def titles_by_page(page: int = 1, page_size: int = 20) -> JSONResponse:
 
 @app.get("/paragraphs/")
 async def paragraphs(id: int) -> List[str]:
-    # returns the paragraphs of an article by id.
+    # Returns the paragraphs of an article by id.
     with Session(engine) as session:
         result = session.exec(select(Article.content).where(
             Article.id == id)).first()

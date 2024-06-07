@@ -31,7 +31,7 @@ def scrape_data(all: bool):
             article = requests.get(article_link)
             article_soup = BeautifulSoup(
                 article.content, "html.parser", fromEncoding='utf-8')
-            article_title = article_soup.find("header").text
+            article_title = article_soup.findAll("header")[1].text
             article_text = article_soup.find(
                 "div",
                 class_="body").find_all("p")
@@ -52,12 +52,7 @@ def scrape_data(all: bool):
                 article_source = "NULL"
 
             article_time = article_soup.find("time")['datetime']
-            # print(article_link, article_time)
-            # print("Autor: " + article_author, ", Toimetaja: " +
-            #      article_editor, ", Allikas: " + article_source)
-            # print()
-            # print(article_text)
-            # print("##########################################")
+            
             result.append(
                 {"link": id,
                     "title": article_title,
